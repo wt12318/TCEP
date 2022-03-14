@@ -30,6 +30,10 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
   length <- match.arg(as.character(length),
                       choices = c("8","9", "10", "11", "12", "13", "14", "15"),
                       several.ok=T)
+
+  #For alleles, a comma-separated list of the alleles for which to make predictions.
+  #This list gets paired with the length list, so there must be a corresponding length for each allele.
+
   if (length(length) != length(allele)){
     stop("The number of length of peptide for which to make predictions must the paired with alleles")
   }
@@ -49,7 +53,7 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
     message("Succeed !")
   }else{
 
-    for (i in 1:3){
+    for (i in 1:10){
       warning(paste0("Failed retrieving, retrying ",i," times"))
       mess1 <- try(system(command_run))
       if (mess1 == 0){
@@ -57,7 +61,7 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
         break
       }
     }
-    if (j == 10){
+    if (i == 10){
       stop("Failed retrieving, stop", immediate. = TRUE)
     }
   }
@@ -77,13 +81,11 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
 #' @export
 #'
 #' @examples
-mhcIIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
-                        allele = c("HLA-DRB1*01:01","HLA-A*03:01"),
+mhcIIbinding <- function(peptide = c("GHAHKVPRRLLKAAR"),
+                        allele = c("HLA-DRB1*01:01"),
                         length = c(8,9),
-                        pre_method = c("ann","comblib_sidney2008","consensus",
-                                       "netmhccons","netmhcpan_ba","netmhcpan_el",
-                                       "netmhcstabpan","pickpocket","recommended",
-                                       "smm","smmpmbec")){
+                        pre_method = c("recommended","consensus","netmhciipan",
+                                       "nn_align","smm_align","comblib","tepitope")){
   if (length(peptide) != 1){
     ##To submit multiple sequences at a time,
     ##escape the special characters in a fasta-formatted sequence with URI codes
@@ -113,7 +115,7 @@ mhcIIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
     message("Succeed !")
   }else{
 
-    for (i in 1:3){
+    for (i in 1:10){
       warning(paste0("Failed retrieving, retrying ",i," times"))
       mess1 <- try(system(command_run))
       if (mess1 == 0){
@@ -121,7 +123,7 @@ mhcIIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
         break
       }
     }
-    if (j == 10){
+    if (i == 10){
       stop("Failed retrieving, stop", immediate. = TRUE)
     }
   }
