@@ -1,12 +1,12 @@
-#' Predicting MHC-I binding
+#' @title Predicting MHC-I binding based on IEDB API
 #'
-#' @param peptide
-#' @param allele
-#' @param length
-#' @param pre_method
-#' @param get_method
+#' @description  This is the wrapped function for IEDB API, the full document can refer to http://tools.iedb.org/main/tools-api/
+#' @param peptide A character vector of input protein sequence.
+#' @param allele A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}.
+#' @param length A numeric or character vector, indicating the length for which to make predictions, must be paired with HLA allele.
+#' @param pre_method Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
 #'
-#' @return
+#' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 #' @export
 #'
 #' @examples
@@ -47,22 +47,22 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
                         peptide,'&allele=',allele,'&length=',length,'" ',
                         'http://tools-cluster-interface.iedb.org/tools_api/mhci/',
                         ' > ',temp_file)
-  message("Retrieving data from server ...")
+  message("Retrieving data from server ... \n")
   mess <- try(system(command_run))
   if (mess == 0){
-    message("Succeed !")
+    message("Succeed ! \n")
   }else{
 
     for (i in 1:10){
-      warning(paste0("Failed retrieving, retrying ",i," times"))
+      warning(paste0("Failed retrieving, retrying ",i," times \n"),immediate. =TRUE)
       mess1 <- try(system(command_run))
       if (mess1 == 0){
-        message("Succeed !")
+        message("Succeed ! \n")
         break
       }
     }
     if (i == 10){
-      stop("Failed retrieving, stop", immediate. = TRUE)
+      stop("Failed retrieving, stop \n", immediate. = TRUE)
     }
   }
   res <- read.table(temp_file,header = T)
@@ -70,20 +70,22 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
   return(res)
 }
 
-#' Predicting MHC-II binding
+#' @title Predicting MHC-II binding based on IEDB API
 #'
-#' @param peptide
-#' @param allele
-#' @param length
-#' @param pre_method
+#' @description  This is the wrapped function for IEDB API, the full document can refer to http://tools.iedb.org/main/tools-api/
+#' @param peptide A character vector of input protein sequence.
+#' @param allele A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}.
+#' @param length A numeric or character vector, indicating the length for which to make predictions.
+#' @param pre_method Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
 #'
-#' @return
+#' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 #' @export
 #'
 #' @examples
+#' dt <- mhcIIbinding(pre_method = "nn_align")
 mhcIIbinding <- function(peptide = c("GHAHKVPRRLLKAAR"),
-                        allele = c("HLA-DRB1*01:01"),
-                        length = c(8,9),
+                        allele = c("DRB1*15:01"),
+                        length = 15,
                         pre_method = c("recommended","consensus","netmhciipan",
                                        "nn_align","smm_align","comblib","tepitope")){
   if (length(peptide) != 1){
@@ -94,11 +96,11 @@ mhcIIbinding <- function(peptide = c("GHAHKVPRRLLKAAR"),
     peptide <- paste0(pep_number,pep_con,collapse = "")
   }
   length <- match.arg(as.character(length),
-                      choices = c("8","9", "10", "11", "12", "13", "14", "15"),
+                      choices = c("11","12","13","14","15","16","17","18","19",
+                                  "20","21","22","23","24","25","26","27","28","29","30","asis"),
                       several.ok=T)
-  if (length(length) != length(allele)){
-    stop("The number of length of peptide for which to make predictions must the paired with alleles")
-  }
+  ##MHC-II not need paired alleles and lengths
+
   length <- paste(as.character(length),collapse = ",")
   allele <- paste(allele,collapse = ",")
   pre_method <- match.arg(pre_method)
@@ -107,27 +109,28 @@ mhcIIbinding <- function(peptide = c("GHAHKVPRRLLKAAR"),
   file.create(temp_file)
   command_run <- paste0('curl --data "method=',pre_method,'&sequence_text=',
                         peptide,'&allele=',allele,'&length=',length,'" ',
-                        'http://tools-cluster-interface.iedb.org/tools_api/mhci/',
+                        'http://tools-cluster-interface.iedb.org/tools_api/mhcii/',
                         ' > ',temp_file)
-  message("Retrieving data from server ...")
+  message("Retrieving data from server ... \n")
   mess <- try(system(command_run))
   if (mess == 0){
-    message("Succeed !")
+    message("Succeed ! \n")
   }else{
 
     for (i in 1:10){
-      warning(paste0("Failed retrieving, retrying ",i," times"))
+      warning(paste0("Failed retrieving, retrying ",i," times \n"),immediate. =TRUE)
       mess1 <- try(system(command_run))
       if (mess1 == 0){
-        message("Succeed !")
+        message("Succeed ! \n")
         break
       }
     }
     if (i == 10){
-      stop("Failed retrieving, stop", immediate. = TRUE)
+      stop("Failed retrieving, stop \n", immediate. = TRUE)
     }
   }
-  res <- read.table(temp_file,header = T)
+  res <- read.table(temp_file,header = T,row.names = NULL)
+  res$length <- nchar(res$peptide)
   file.remove(temp_file)
   return(res)
 }

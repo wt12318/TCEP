@@ -2,7 +2,7 @@
 % Please edit documentation in R/available_methods.R
 \name{available_methods}
 \alias{available_methods}
-\title{Show avaliable prediction methods for MHC-I or MHC-II}
+\title{Show available prediction methods for MHC-I or MHC-II}
 \usage{
 available_methods(
   get_methods = c("api", "client"),
@@ -10,11 +10,16 @@ available_methods(
 )
 }
 \arguments{
-\item{pre_type}{}
+\item{get_methods}{Character, which method to used for predicting MHC-peptide binding, can be api, refering to IEDB API and client, refering to local client}
+
+\item{pre_type}{Character, which MHC type need to be predicted, can be MHC-I or MHC-II}
 }
 \value{
-
+A dataframe (tibble) contains two columns of method and corresponding version.
 }
 \description{
-Show avaliable prediction methods for MHC-I or MHC-II
+Show available prediction methods for MHC-I or MHC-II
+}
+\examples{
+available_methods("api","MHC-I")
 }

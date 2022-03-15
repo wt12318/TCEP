@@ -1,3 +1,13 @@
+#' @title Show available alleles for MHC-I or MHC-II and corresponding methods.
+#'
+#' @param pre_method Character, which method to used for predicting MHC-peptide binding. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
+#' @param pre_type Character, which MHC type need to be predicted, can be MHC-I or MHC-II
+#'
+#' @return A dataframe (tibble) contains one column of available alleles.
+#' @export
+#'
+#' @examples
+#' available_alleles("MHC-I","ann")
 available_alleles <- function(pre_type = c("MHC-I","MHC-II"),
                               pre_method){
   pre_type <- match.arg(pre_type)

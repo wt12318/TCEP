@@ -2,23 +2,31 @@
 % Please edit documentation in R/mhcbinding.R
 \name{mhcIIbinding}
 \alias{mhcIIbinding}
-\title{Predicting MHC-II binding}
+\title{Predicting MHC-II binding based on IEDB API}
 \usage{
 mhcIIbinding(
-  peptide = c("GHAHKVPRRLLKAAR", "LKAADASADADGSGSGSGSG"),
-  allele = c("HLA-DRB1*01:01", "HLA-A*03:01"),
-  length = c(8, 9),
-  pre_method = c("ann", "comblib_sidney2008", "consensus", "netmhccons",
-    "netmhcpan_ba", "netmhcpan_el", "netmhcstabpan", "pickpocket", "recommended", "smm",
-    "smmpmbec")
+  peptide = c("GHAHKVPRRLLKAAR"),
+  allele = c("DRB1*15:01"),
+  length = 15,
+  pre_method = c("recommended", "consensus", "netmhciipan", "nn_align", "smm_align",
+    "comblib", "tepitope")
 )
 }
 \arguments{
-\item{pre_method}{}
+\item{peptide}{A character vector of input protein sequence.}
+
+\item{allele}{A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}.}
+
+\item{length}{A numeric or character vector, indicating the length for which to make predictions.}
+
+\item{pre_method}{Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}}
 }
 \value{
-
+A dataframe contains the predicted IC50 and precentile rank (if available).
 }
 \description{
-Predicting MHC-II binding
+This is the wrapped function for IEDB API, the full document can refer to http://tools.iedb.org/main/tools-api/
+}
+\examples{
+dt <- mhcIIbinding(pre_method = "nn_align")
 }

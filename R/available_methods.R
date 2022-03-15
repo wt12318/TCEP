@@ -1,12 +1,13 @@
-#' Show avaliable prediction methods for MHC-I or MHC-II
+#' @title Show available prediction methods for MHC-I or MHC-II
 #'
-#' @param get_methods
-#' @param pre_type
+#' @param get_methods Character, which method to used for predicting MHC-peptide binding, can be api, refering to IEDB API and client, refering to local client
+#' @param pre_type Character, which MHC type need to be predicted, can be MHC-I or MHC-II
 #'
-#' @return
+#' @return A dataframe (tibble) contains two columns of method and corresponding version.
 #' @export
 #'
 #' @examples
+#' available_methods("api","MHC-I")
 available_methods <- function(get_methods=c("api","client"),
                               pre_type=c("MHC-I","MHC-II")){
   get_methods <- match.arg(get_methods)
