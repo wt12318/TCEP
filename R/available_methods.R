@@ -15,8 +15,10 @@ available_methods <- function(get_methods=c("api","client"),
   if (get_methods == "api"){
     if(pre_type == "MHC-I"){
       print(dplyr::as_tibble(MHCbinding::mhcIbinding_api_methods))
+      return(MHCbinding::mhcIbinding_api_methods[,1])
     }else{
       print(dplyr::as_tibble(MHCbinding::mhcIIbinding_api_methods))
+      return(MHCbinding::mhcIIbinding_api_methods[,1])
     }
   }else{
     NULL ##To do
