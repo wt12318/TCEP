@@ -18,7 +18,7 @@ mhcIbinding(
 
 \item{allele}{A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}.}
 
-\item{length}{A numeric or character vector, indicating the length for which to make predictions, must be paired with HLA allele.}
+\item{length}{A numeric or character vector, indicating the length for which to make predictions, must be paired with HLA allele. Foe MHC-I, the length can be 8-15}
 
 \item{pre_method}{Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}}
 }

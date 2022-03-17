@@ -3,7 +3,7 @@
 #' @description  This is the wrapped function for IEDB API, the full document can refer to http://tools.iedb.org/main/tools-api/
 #' @param peptide A character vector of input protein sequence.
 #' @param allele A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}.
-#' @param length A numeric or character vector, indicating the length for which to make predictions, must be paired with HLA allele.
+#' @param length A numeric or character vector, indicating the length for which to make predictions, must be paired with HLA allele. Foe MHC-I, the length can be 8-15
 #' @param pre_method Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
 #'
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
@@ -75,7 +75,7 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
 #' @description  This is the wrapped function for IEDB API, the full document can refer to http://tools.iedb.org/main/tools-api/
 #' @param peptide A character vector of input protein sequence.
 #' @param allele A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}.
-#' @param length A numeric or character vector, indicating the length for which to make predictions.
+#' @param length A numeric or character vector, indicating the length for which to make predictions. For MHC-II, the length can be 11-30 or asis (take the length of input sequence as the peptide length)
 #' @param pre_method Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
 #'
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
