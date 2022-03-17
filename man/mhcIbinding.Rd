@@ -31,5 +31,5 @@ This is the wrapped function for IEDB API, the full document can refer to http:/
 \examples{
 test <- mhcIbinding(peptide = "SLYNTVATLY",
                     allele = "HLA-A*01:01",length = "8",
-                    pre_method = "netmhcpan_el",get_method = "api")
+                    pre_method = "netmhcpan_el")
 }

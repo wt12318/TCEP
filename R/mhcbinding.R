@@ -12,7 +12,7 @@
 #' @examples
 #' test <- mhcIbinding(peptide = "SLYNTVATLY",
 #'                     allele = "HLA-A*01:01",length = "8",
-#'                     pre_method = "netmhcpan_el",get_method = "api")
+#'                     pre_method = "netmhcpan_el")
 mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
                         allele = c("HLA-A*01:01","HLA-A*03:01"),
                         length = c(8,9),
