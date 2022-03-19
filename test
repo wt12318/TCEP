@@ -1,0 +1,7 @@
+allele	seq_num	start	end	length	method	peptide	percentile_rank	adjusted_rank	comblib_core	comblib_score	comblib_rank	comblib_adjusted_rank	smm_align_core	smm_align_ic50	smm_align_rank	smm_align_adjusted_rank	nn_align_core	nn_align_ic50	nn_align_rank	nn_align_adjusted_rank	netmhciipan_core	netmhciipan_ic50	netmhciipan_rank	netmhciipan_adjusted_rank	sturniolo_core	sturniolo_score	sturniolo_rank	sturniolo_adjusted_rank
+HLA-DRB5*02:05	1	2	15	14	NetMHCIIpan	HAHKVPRRLLKAAR	30.00	32.30	-	-	-	-	-	-	-	-	-	-	-	-	AHKVPRRLL	373.46	30.00	32.30	-	-	-	-
+HLA-DRB5*02:05	1	1	15	15	NetMHCIIpan	GHAHKVPRRLLKAAR	34.00	34.00	-	-	-	-	-	-	-	-	-	-	-	-	AHKVPRRLL	396.41	34.00	34.00	-	-	-	-
+HLA-DRB5*02:05	1	1	14	14	NetMHCIIpan	GHAHKVPRRLLKAA	34.00	36.61	-	-	-	-	-	-	-	-	-	-	-	-	AHKVPRRLL	418.06	34.00	36.61	-	-	-	-
+HLA-DRB5*02:03	1	1	14	14	NetMHCIIpan	GHAHKVPRRLLKAA	66.00	71.07	-	-	-	-	-	-	-	-	-	-	-	-	AHKVPRRLL	3852.78	66.00	71.07	-	-	-	-
+HLA-DRB5*02:03	1	1	15	15	NetMHCIIpan	GHAHKVPRRLLKAAR	74.00	74.00	-	-	-	-	-	-	-	-	-	-	-	-	AHKVPRRLL	4166.01	74.00	74.00	-	-	-	-
+HLA-DRB5*02:03	1	2	15	14	NetMHCIIpan	HAHKVPRRLLKAAR	73.00	78.61	-	-	-	-	-	-	-	-	-	-	-	-	AHKVPRRLL	4673.95	73.00	78.61	-	-	-	-

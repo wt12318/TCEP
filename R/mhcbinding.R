@@ -3,7 +3,7 @@
 #' @description  This is the wrapped function for IEDB API, the full document can refer to http://tools.iedb.org/main/tools-api/
 #' @param peptide A character vector of input protein sequence.
 #' @param allele A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}.
-#' @param length A numeric or character vector, indicating the length for which to make predictions, must be paired with HLA allele. Foe MHC-I, the length can be 8-15
+#' @param length A numeric or character vector, indicating the length for which to make predictions. For MHC-I, the length can be 8-15
 #' @param pre_method Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
 #'
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
@@ -30,43 +30,43 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
   length <- match.arg(as.character(length),
                       choices = c("8","9", "10", "11", "12", "13", "14", "15"),
                       several.ok=T)
-
-  #For alleles, a comma-separated list of the alleles for which to make predictions.
-  #This list gets paired with the length list, so there must be a corresponding length for each allele.
-
-  if (length(length) != length(allele)){
-    stop("The number of length of peptide for which to make predictions must the paired with alleles")
-  }
-  length <- paste(as.character(length),collapse = ",")
-  allele <- paste(allele,collapse = ",")
   pre_method <- match.arg(pre_method)
 
-  temp_file <- tempfile()
-  file.create(temp_file)
-  command_run <- paste0('curl --data "method=',pre_method,'&sequence_text=',
-                        peptide,'&allele=',allele,'&length=',length,'" ',
-                        'http://tools-cluster-interface.iedb.org/tools_api/mhci/',
-                        ' > ',temp_file)
-  message("Retrieving data from server ... \n")
-  mess <- try(system(command_run))
-  if (mess == 0){
-    message("Succeed ! \n")
-  }else{
-
-    for (i in 1:10){
-      warning(paste0("Failed retrieving, retrying ",i," times \n"),immediate. =TRUE)
-      mess1 <- try(system(command_run))
-      if (mess1 == 0){
+  res <- vector("list",length(length)*length(allele))
+  k <- 1
+  for (i in seq_along(allele)){
+    for (j in seq_along(length)){
+      temp_file <- tempfile()
+      file.create(temp_file)
+      command_run <- paste0('curl --data "method=',pre_method,'&sequence_text=',
+                            peptide,'&allele=',allele[i],'&length=',length[j],'" ',
+                            'http://tools-cluster-interface.iedb.org/tools_api/mhci/',
+                            ' > ',temp_file)
+      message("Retrieving data from server ... \n")
+      mess <- try(system(command_run))
+      if (mess == 0){
         message("Succeed ! \n")
-        break
+      }else{
+
+        for (l in 1:10){
+          warning(paste0("Failed retrieving, retrying ",l," times \n"),immediate. =TRUE)
+          mess1 <- try(system(command_run))
+          if (mess1 == 0){
+            message("Succeed ! \n")
+            break
+          }
+        }
+        if (l == 10){
+          stop("Failed retrieving, stop \n", immediate. = TRUE)
+        }
       }
-    }
-    if (i == 10){
-      stop("Failed retrieving, stop \n", immediate. = TRUE)
+      tmp <- read.table(temp_file,header = T)
+      file.remove(temp_file)
+      res[[k]] <- tmp
+      k <- k + 1
     }
   }
-  res <- read.table(temp_file,header = T)
-  file.remove(temp_file)
+  res <- dplyr::bind_rows(res)
   return(res)
 }
 
@@ -88,6 +88,12 @@ mhcIIbinding <- function(peptide = c("GHAHKVPRRLLKAAR"),
                         length = 15,
                         pre_method = c("recommended","consensus","netmhciipan",
                                        "nn_align","smm_align","comblib","tepitope")){
+
+  input_len <- nchar(peptide)
+  if(any(length> input_len)){
+    stop("The input peptide is shorter than the predicted core length specified by the user \n")
+  }
+
   if (length(peptide) != 1){
     ##To submit multiple sequences at a time,
     ##escape the special characters in a fasta-formatted sequence with URI codes
