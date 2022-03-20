@@ -2,5 +2,10 @@
 
 export(available_alleles)
 export(available_methods)
+export(extractSeq)
 export(mhcIIbinding)
 export(mhcIbinding)
+export(vcf2annova)
+export(vcf2binding)
+export(vcf2pep)
+export(vcf2seq)
