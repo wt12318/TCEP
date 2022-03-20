@@ -20,6 +20,11 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
                                       "netmhccons","netmhcpan_ba","netmhcpan_el",
                                       "netmhcstabpan","pickpocket","recommended",
                                       "smm","smmpmbec")){
+  input_len <- nchar(peptide)
+  if(any(length> input_len)){
+    stop("The input peptide is shorter than the predicted core length specified by the user \n")
+  }
+
   if (length(peptide) != 1){
     ##To submit multiple sequences at a time,
     ##escape the special characters in a fasta-formatted sequence with URI codes
@@ -32,6 +37,7 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
                       several.ok=T)
   pre_method <- match.arg(pre_method)
 
+  ### the original API need MHC allele must be paired with the number of peptide lengths, now it is not needed any more !
   res <- vector("list",length(length)*length(allele))
   k <- 1
   for (i in seq_along(allele)){

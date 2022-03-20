@@ -106,7 +106,7 @@ vcf2seq <- function(annovar_path,vcf_path,
 }
 
 vcf2binding <- function(annovar_path,vcf_path,
-                        genome_version=c("hg19","hg38"),need_allsamples=TRUE,need_samples,mhc_type,pep_length,allele,
+                        genome_version=c("hg19","hg38"),need_allsamples=FALSE,need_samples,mhc_type,pep_length,allele,
                         pre_method){
   res <- vector("list",length = length(pep_length))
   names(res) <- pep_length
@@ -114,8 +114,33 @@ vcf2binding <- function(annovar_path,vcf_path,
     res[[i]] <- vcf2seq(annovar_path = annovar_path,vcf_path = vcf_path,genome_version = genome_version,
                         need_allsamples = need_allsamples,need_samples = need_samples,len = pep_length[i])
   }
+  res <- dplyr::bind_rows(res,.id = "predicted_length")
+
+  pre_res <- vector("list",length = length(pep_length))
+  names(pre_res) <- pep_length
+  for (i in seq_along(pre_res)){
+    pep <- res[res$predicted_length == names(pre_res)[i],"ext_seq"]
+    pre_res[[i]] <- MHCbinding:::general_mhcbinding(mhc_type = mhc_type, length = pep_length[i],
+                                                    allele = allele,pre_method = pre_method, peptide = pep)
+  }
+
+  tt <- dplyr::bind_rows(pre_res)
+  res <- res %>% mutate(index = paste(predicted_length,map(table(res$predicted_length) %>% unname,~seq(1,.x)) %>% unlist(),sep = ":"))
+  tt <- tt %>% mutate(index=paste(length,seq_num,sep = ":"))
+  tt <- left_join(
+    tt %>% rename(pep_start=start,pep_end=end),
+    res %>% select(chr,start,end,ref,alt,index)
+  ) %>% select(-index)
+
 }
 
-
-
+annovar_path = "~/software/annovar/"
+vcf_path = "inst/extdata/test_grch38.vcf"
+genome_version = "hg38"
+need_allsamples=FALSE
+need_samples = "TUMOR"
+mhc_type = "MHC-I"
+pep_length = c(9,10)
+allele = c("HLA-A*01:01", "HLA-A*03:01")
+pre_method = "ann"
 
