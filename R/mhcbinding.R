@@ -21,7 +21,7 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
                                       "netmhcstabpan","pickpocket","recommended",
                                       "smm","smmpmbec")){
   input_len <- nchar(peptide)
-  if(any(length> input_len)){
+  if(any(as.numeric(length)> input_len)){
     stop("The input peptide is shorter than the predicted core length specified by the user \n")
   }
 
@@ -96,7 +96,7 @@ mhcIIbinding <- function(peptide = c("GHAHKVPRRLLKAAR"),
                                        "nn_align","smm_align","comblib","tepitope")){
 
   input_len <- nchar(peptide)
-  if(any(length> input_len)){
+  if(any(as.numeric(length)> input_len)){
     stop("The input peptide is shorter than the predicted core length specified by the user \n")
   }
 
