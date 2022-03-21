@@ -29,7 +29,7 @@ vcf2annova <- function(annovar_path,vcf_path,out_file,
   }else{
     commond <- paste0(annovar_path,"/convert2annovar.pl -format vcf4 ",vcf_path," -outfile ",out_file," -allsample")
     system(command = commond)
-    need_samples_file <- paste0("cat ",out_file,".",need_samples,".avinput > ",out_file)
+    need_samples_file <- paste0("cat ",out_file,".",need_samples,".avinput >> ",out_file)
     system(need_samples_file)
   }
 }
@@ -159,7 +159,7 @@ vcf2seq <- function(annovar_path,vcf_path,
     rowwise() %>%
     mutate(indel=ifelse(ref != "-" & alt != "-" & nchar(ref) == 1 & nchar(alt) == 1,"FALSE","TRUE")) %>%
     as.data.frame()
-  ext_seqs_mt <- mapply(extractSeq,seq=pep$seq_mt,pos=pep$pos,len=len,indel=pep$indel) %>% unname()
+  ext_seqs_mt <- mapply(extractSeq,seq=pep$seq_mt,pos=as.numeric(pep$pos),len=as.numeric(len),indel=pep$indel) %>% unname()
   #ext_seqs_wt <- mapply(extractSeq,seq=pep$seq_wt,pos=pep$pos,len=len,indel=pep$indel) %>% unname()
   ##remove the last star
   a <-  substr(ext_seqs_mt,nchar(ext_seqs_mt),nchar(ext_seqs_mt))=="*"
