@@ -13,7 +13,7 @@
 #' @export
 #'
 #' @examples
-#' pep <- maf2pep(annovar_path = annovar_path,vcf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
+#' pep <- maf2pep(annovar_path = annovar_path,maf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
 #'                need_allsamples = TRUE)
 maf2pep <- function(annovar_path,maf_path,
                     need_allsamples=FALSE,need_samples){
@@ -76,7 +76,7 @@ maf2pep <- function(annovar_path,maf_path,
 #' @export
 #'
 #' @examples
-#' maf2seq(annovar_path = annovar_path,vcf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
+#' maf2seq(annovar_path = annovar_path,maf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
 #'         need_allsamples = TRUE,len = 9)
 maf2seq <- function(annovar_path,maf_path,need_allsamples=TRUE,need_samples,len){
 
@@ -114,7 +114,7 @@ maf2seq <- function(annovar_path,maf_path,need_allsamples=TRUE,need_samples,len)
 #' @export
 #'
 #' @examples
-#' test <- maf2binding(annovar_path = "~/software/annovar/",vcf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
+#' test <- maf2binding(annovar_path = "~/software/annovar/",maf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
 #'                     need_allsamples = TRUE,mhc_type = "MHC-I",pep_length = c(9,10),
 #'                     allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann")
 
