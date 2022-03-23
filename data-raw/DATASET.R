@@ -3,12 +3,12 @@
 dt <- read.table("clipboard",sep = "\t")
 colnames(dt) <- c("method","version")
 mhcIbinding_api_methods <- dt
-usethis::use_data(mhcIbinding_api_methods)
+usethis::use_data(mhcIbinding_api_methods,overwrite = T)
 ## MHC-II methods
 dt <- read.table("clipboard",sep = "\t")
 colnames(dt) <- c("method","version")
 mhcIIbinding_api_methods <- dt
-usethis::use_data(mhcIIbinding_api_methods)
+usethis::use_data(mhcIIbinding_api_methods,overwrite = T)
 
 ### MHC-I allele
 for (i in mhcIbinding_api_methods$method){
