@@ -81,3 +81,10 @@ colnames(res)[1] <- "alleles"
 res$method <- gsub("mhciiallele_","",res$method)
 mhcIIallele <- res
 usethis::use_data(mhcIIallele)
+
+###pep file
+dt <- random_peptides(len = 12,n=10)
+write.table(dt,file = "inst/extdata/random.pep",row.names = F,col.names = F,quote = F)
+
+
+
