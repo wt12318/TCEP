@@ -21,8 +21,9 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
                                       "netmhcstabpan","pickpocket","recommended",
                                       "smm","smmpmbec")){
   input_len <- nchar(peptide)
+  max_len <- max(input_len)
   if(any(as.numeric(length)> input_len)){
-    stop("The input peptide is shorter than the predicted core length specified by the user \n")
+    warning("Some of input peptides are shorter than the predicted core length specified by the user \n",immediate. = T)
   }
 
   if (length(peptide) != 1){
@@ -35,6 +36,7 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
   length <- match.arg(as.character(length),
                       choices = c("8","9", "10", "11", "12", "13", "14", "15"),
                       several.ok=T)
+  length <- as.numeric(length)
   pre_method <- match.arg(pre_method)
 
   ### the original API need MHC allele must be paired with the number of peptide lengths, now it is not needed any more !
@@ -42,6 +44,9 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
   k <- 1
   for (i in seq_along(allele)){
     for (j in seq_along(length)){
+      if(length[j] > max_len){
+        next
+      }
       temp_file <- tempfile()
       file.create(temp_file)
       command_run <- paste0('curl --data "method=',pre_method,'&sequence_text=',
@@ -96,6 +101,7 @@ mhcIIbinding <- function(peptide = c("GHAHKVPRRLLKAAR"),
                                        "nn_align","smm_align","comblib","tepitope")){
 
   input_len <- nchar(peptide)
+  max_len <- max(input_len)
   if(any(as.numeric(length)> input_len)){
     stop("The input peptide is shorter than the predicted core length specified by the user \n")
   }
@@ -141,8 +147,13 @@ mhcIIbinding <- function(peptide = c("GHAHKVPRRLLKAAR"),
       stop("Failed retrieving, stop \n", immediate. = TRUE)
     }
   }
-  res <- read.table(temp_file,header = T,row.names = NULL)
-  res$length <- nchar(res$peptide)
-  file.remove(temp_file)
-  return(res)
+  tmp <- readLines(temp_file)
+  if (grepl("The length of input sequence",tmp[1])){
+    return(NULL)
+  }else{
+    res <- read.table(temp_file,header = T,row.names = NULL)
+    res$length <- nchar(res$peptide)
+    file.remove(temp_file)
+    return(res)
+  }
 }
