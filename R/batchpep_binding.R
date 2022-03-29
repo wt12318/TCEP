@@ -15,12 +15,19 @@
 batchpep_binding <- function(get_method=c("api","client"),pep_file,mhc_type,pep_length,allele,pre_method,client_path){
   get_method <- match.arg(get_method)
   pep <- read.table(pep_file)
-  pep <- pep %>% mutate(seq_num=row_number())
-  pep1 <- paste(pep$V1, sep= ",")
+  pep_seq <- rep(pep$V1,length(pep_length))
+
+  pep_dt <- data.frame(pep_seq=pep_seq,pre_len=rep(pep_length,each=nrow(pep)))
+  pep_dt <- pep_dt[which(nchar(pep_dt$pep_seq) >= as.numeric(pep_dt$pre_len)),]
+
+  pep_dt <- pep_dt %>%
+    group_by(pre_len) %>%
+    mutate(seq_num=row_number())
+  pep1 <- paste(pep_dt$pep_seq, sep= ",")
   res <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type=mhc_type,length=pep_length,
                                          allele=allele,pre_method=pre_method,peptide=pep1,client_path = client_path)
   pep <- left_join(
-    pep,res
+    pep_dt,res
   )
   colnames(pep)[1] <- "query_pep"
   return(pep)

@@ -204,6 +204,7 @@ vcf2binding <- function(get_method=c("api","client"),annovar_path,vcf_path,
                         need_allsamples = need_allsamples,need_samples = need_samples,len = pep_length[i])
   }
   res <- dplyr::bind_rows(res,.id = "predicted_length")
+  res <- res[which(nchar(res$ext_seqs_mt) >= as.numeric(res$predicted_length)),]
 
   pre_res <- vector("list",length = length(pep_length))
   names(pre_res) <- pep_length
@@ -214,11 +215,14 @@ vcf2binding <- function(get_method=c("api","client"),annovar_path,vcf_path,
   }
 
   pre_res <- dplyr::bind_rows(pre_res)
-  res <- res %>% mutate(index = paste(predicted_length,map(table(res$predicted_length) %>% unname,~seq(1,.x)) %>% unlist(),sep = ":"))
+  res <- res %>%
+    group_by(predicted_length) %>%
+    mutate(seq_num=row_number()) %>%
+    mutate(index=paste(predicted_length,seq_num,sep = ":"))
   pre_res <- pre_res %>% mutate(index=paste(length,seq_num,sep = ":"))
   pre_res <- left_join(
     pre_res %>% rename(pep_start=start,pep_end=end),
-    res %>% select(chr,start,end,ref,alt,index)
+    res %>% ungroup() %>%  select(chr,start,end,ref,alt,index,ext_seqs_mt)
   ) %>% select(-index)
 
   return(pre_res)

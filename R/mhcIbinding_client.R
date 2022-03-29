@@ -5,14 +5,14 @@
 #' @param allele A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}.
 #' @param length A numeric or character vector, indicating the length for which to make predictions. For MHC-I, the length can be 8-14
 #' @param pre_method Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
-#'
+#' @param tmp_dir Character, the temp dir
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 #' @export
 #'
 #' @examples
 #' test <- mhcIbinding_client(peptide = "SLYNTVATLY",
 #'                            allele = "HLA-A*01:01",length = "8",
-#'                            pre_method = "netmhcpan_el",client_path="~/software/mhc_i/src/")
+#'                            pre_method = "netmhcpan_el",client_path="~/software/mhc_i/src/",tmp_dir=tempdir())
 mhcIbinding_client <- function(client_path,
                                peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
                                allele = c("HLA-A*01:01","HLA-A*03:01"),
@@ -20,20 +20,21 @@ mhcIbinding_client <- function(client_path,
                                pre_method = c("ann","comblib_sidney2008","consensus",
                                               "netmhccons","netmhcpan_ba","netmhcpan_el",
                                               "netmhcstabpan","pickpocket","recommended",
-                                              "smm","smmpmbec")){
+                                              "smm","smmpmbec"),tmp_dir){
 
   input_len <- nchar(peptide)
   max_len <- max(input_len)
+  min_len <- min(input_len)
   if(any(as.numeric(length)> input_len)){
     warning("Some of input peptides are shorter than the predicted core length specified by the user \n",immediate. = T)
   }
 
-  temp_dir <- tempdir()
-  file.create(paste0(temp_dir,"/a"))
-  temp_list <- as.list(peptide)
-  names(temp_list) <- paste0("seq",c(1:length(peptide)))
-  seqinr::write.fasta(temp_list,names = names(temp_list),file.out = paste0(temp_dir,"/a"))
+  if (! dir.exists(tmp_dir)){
+    dir.create(tmp_dir)
+  }
 
+  temp_dir <- tmp_dir
+  file.create(paste0(temp_dir,"/a"))
   length <- match.arg(as.character(length),
                       choices = c("8","9", "10", "11", "12", "13", "14"),
                       several.ok=T)
@@ -47,6 +48,19 @@ mhcIbinding_client <- function(client_path,
       if(length[j] > max_len){
         next
       }
+
+      ## 如果有一个序列小于指定的长度就会报错，因此去掉小于指定长度的序列
+      if (length[j] < min_len){
+        temp_list <- as.list(peptide)
+        names(temp_list) <- paste0("seq",c(1:length(peptide)))
+        seqinr::write.fasta(temp_list,names = names(temp_list),file.out = paste0(temp_dir,"/a"))
+      }else{
+        temp_list <- as.list(peptide[which(input_len >= length[j])])
+        names(temp_list) <- paste0("seq",c(1:length(temp_list)))
+        seqinr::write.fasta(temp_list,names = names(temp_list),file.out = paste0(temp_dir,"/a"))
+      }
+
+
       file.create(paste0(temp_dir,"/b"))
       command_run <- paste0(client_path,'predict_binding.py ',pre_method," ",allele[i]," ",length[j]," ",paste0(temp_dir,"/a"),
                             ' > ',paste0(temp_dir,"/b"))
@@ -58,6 +72,7 @@ mhcIbinding_client <- function(client_path,
     }
   }
   file.remove(paste0(temp_dir,"/a"),paste0(temp_dir,"/b"))
+  unlink(temp_dir,recursive = T)
   res <- dplyr::bind_rows(res)
   return(res)
 }

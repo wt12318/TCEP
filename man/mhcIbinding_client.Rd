@@ -11,7 +11,8 @@ mhcIbinding_client(
   length = c(8, 9),
   pre_method = c("ann", "comblib_sidney2008", "consensus", "netmhccons",
     "netmhcpan_ba", "netmhcpan_el", "netmhcstabpan", "pickpocket", "recommended", "smm",
-    "smmpmbec")
+    "smmpmbec"),
+  tmp_dir
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ mhcIbinding_client(
 \item{length}{A numeric or character vector, indicating the length for which to make predictions. For MHC-I, the length can be 8-14}
 
 \item{pre_method}{Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}}
+
+\item{tmp_dir}{Character, the temp dir}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).
@@ -32,5 +35,5 @@ This is the wrapped function for IEDB commond tools.
 \examples{
 test <- mhcIbinding_client(peptide = "SLYNTVATLY",
                            allele = "HLA-A*01:01",length = "8",
-                           pre_method = "netmhcpan_el",client_path="~/software/mhc_i/src/")
+                           pre_method = "netmhcpan_el",client_path="~/software/mhc_i/src/",tmp_dir=tempdir())
 }

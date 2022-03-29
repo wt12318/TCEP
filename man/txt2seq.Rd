@@ -4,7 +4,13 @@
 \alias{txt2seq}
 \title{Convert TXT file to mutated peptides and extract proper range of amino acids}
 \usage{
-txt2seq(annovar_path, txt_path, genome_version = c("hg19", "hg38"), len)
+txt2seq(
+  annovar_path,
+  txt_path,
+  genome_version = c("hg19", "hg38"),
+  len,
+  tmp_dir
+)
 }
 \arguments{
 \item{annovar_path}{Character, the install path of annovar.}
@@ -14,6 +20,8 @@ txt2seq(annovar_path, txt_path, genome_version = c("hg19", "hg38"), len)
 \item{genome_version}{Character, which genome build version of the TXT file, can be hg19 or hg38}
 
 \item{len}{Numeric, the epitope length needed to predicted.}
+
+\item{tmp_dir}{Character, the temp dir}
 }
 \value{
 A dataframe containg wildtype and the mutated protein sequence, plus exacted sequence from mutated peptides.
@@ -23,5 +31,5 @@ This function use \code{\link{txt2pep}} to convert TXT file to mutated peptides,
 }
 \examples{
 txt2seq(annovar_path = annovar_path,txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
-        genome_version = "hg19",len = 9)
+        genome_version = "hg19",len = 9,tmp_dir=tempdir())
 }
