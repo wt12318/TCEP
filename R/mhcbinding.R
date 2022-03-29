@@ -3,7 +3,7 @@
 #' @description  This is the wrapped function for IEDB API, the full document can refer to http://tools.iedb.org/main/tools-api/
 #' @param peptide A character vector of input protein sequence.
 #' @param allele A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}.
-#' @param length A numeric or character vector, indicating the length for which to make predictions. For MHC-I, the length can be 8-15
+#' @param length A numeric or character vector, indicating the length for which to make predictions. For MHC-I, the length can be 8-14
 #' @param pre_method Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
 #'
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
@@ -16,7 +16,7 @@
 mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
                         allele = c("HLA-A*01:01","HLA-A*03:01"),
                         length = c(8,9),
-                       pre_method = c("ann","comblib_sidney2008","consensus",
+                        pre_method = c("ann","comblib_sidney2008","consensus",
                                       "netmhccons","netmhcpan_ba","netmhcpan_el",
                                       "netmhcstabpan","pickpocket","recommended",
                                       "smm","smmpmbec")){
@@ -34,7 +34,7 @@ mhcIbinding <- function(peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
     peptide <- paste0(pep_number,pep_con,collapse = "")
   }
   length <- match.arg(as.character(length),
-                      choices = c("8","9", "10", "11", "12", "13", "14", "15"),
+                      choices = c("8","9", "10", "11", "12", "13", "14"),
                       several.ok=T)
   length <- as.numeric(length)
   pre_method <- match.arg(pre_method)

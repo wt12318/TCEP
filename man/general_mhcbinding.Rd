@@ -4,10 +4,19 @@
 \alias{general_mhcbinding}
 \title{General MCHbinding}
 \usage{
-general_mhcbinding(mhc_type = c("MHC-I", "MHC-II"), ...)
+general_mhcbinding(
+  get_method = c("api", "client"),
+  mhc_type = c("MHC-I", "MHC-II"),
+  client_path,
+  ...
+)
 }
 \arguments{
+\item{get_method}{The way to predict, can be api or client}
+
 \item{mhc_type}{MHC class}
+
+\item{client_path}{The path of local IEDB tools, used when setting get_method as client}
 
 \item{...}{Other para passed to mhcIbing or mhcIIbind}
 }
