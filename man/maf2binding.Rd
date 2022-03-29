@@ -5,6 +5,7 @@
 \title{Predict peptide MHC binding based on MAF file.}
 \usage{
 maf2binding(
+  get_method = c("api", "client"),
   annovar_path,
   maf_path,
   need_allsamples = FALSE,
@@ -12,10 +13,13 @@ maf2binding(
   mhc_type,
   pep_length,
   allele,
-  pre_method
+  pre_method,
+  client_path
 )
 }
 \arguments{
+\item{get_method}{The way to predict, can be api or client.}
+
 \item{annovar_path}{Character, the install path of annovar.}
 
 \item{maf_path}{Character, the path of MAF file needed to be converted.}
@@ -31,6 +35,8 @@ maf2binding(
 \item{allele}{A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}}
 
 \item{pre_method}{Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}}
+
+\item{client_path}{The path of local IEDB tools, used when setting get_method as client}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).
@@ -39,7 +45,7 @@ A dataframe contains the predicted IC50 and precentile rank (if available).
 This function use \code{\link{maf2seq}} to exacted mutated "new peptide" from MAF file, and predicted the binding affinity of these peptide with specific MHC allele using \code{\link{general_mhcbinding}}
 }
 \examples{
-test <- maf2binding(annovar_path = "~/software/annovar/",maf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
+test <- maf2binding(get_method="api",annovar_path = "~/software/annovar/",maf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
                     need_allsamples = TRUE,mhc_type = "MHC-I",pep_length = c(9,10),
                     allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann")
 }

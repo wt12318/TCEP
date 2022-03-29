@@ -4,9 +4,19 @@
 \alias{batchpep_binding}
 \title{Predict binding affinity of peptides with MHC in batch mode.}
 \usage{
-batchpep_binding(pep_file, mhc_type, pep_length, allele, pre_method)
+batchpep_binding(
+  get_method = c("api", "client"),
+  pep_file,
+  mhc_type,
+  pep_length,
+  allele,
+  pre_method,
+  client_path
+)
 }
 \arguments{
+\item{get_method}{The way to predict, can be api or client.}
+
 \item{pep_file}{Character, the path of peptide file needed to be processed, each row refers to a peptide sequence.}
 
 \item{mhc_type}{MHC class, can be MHC-I or MHC-II.}
@@ -16,6 +26,8 @@ batchpep_binding(pep_file, mhc_type, pep_length, allele, pre_method)
 \item{allele}{A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}}
 
 \item{pre_method}{Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}}
+
+\item{client_path}{The path of local IEDB tools, used when setting get_method as client}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).
@@ -24,6 +36,6 @@ A dataframe contains the predicted IC50 and precentile rank (if available).
 Predict binding affinity of peptides with MHC in batch mode.
 }
 \examples{
-res <- batchpep_binding(pep_file=system.file("extdata", "random.pep", package = "MHCbinding"),
+res <- batchpep_binding(get_method="api",pep_file=system.file("extdata", "random.pep", package = "MHCbinding"),
                                   mhc_type="MHC-I",pep_length=c(9,10),allele="HLA-A*01:01",pre_method="ann")
 }

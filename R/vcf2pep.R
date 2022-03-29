@@ -175,6 +175,7 @@ vcf2seq <- function(annovar_path,vcf_path,
 #' Predict peptide MHC binding based on VCF file.
 #'
 #' @description This function use \code{\link{vcf2seq}} to exacted mutated "new peptide" from VCF file, and predicted the binding affinity of these peptide with specific MHC allele using \code{\link{general_mhcbinding}}
+#' @param get_method The way to predict, can be api or client.
 #' @param annovar_path Character, the install path of annovar.
 #' @param vcf_path Character, the path of VCF file needed to be converted.
 #' @param genome_version Character, which genome build version of the VCF file, can be hg19 or hg38
@@ -184,17 +185,18 @@ vcf2seq <- function(annovar_path,vcf_path,
 #' @param pep_length A numeric or character vector, indicating the length for which to make predictions. For MHC-I, the length can be 8-15, for MHC-II, the length can be 11-30 or asis (take the length of input sequence as the peptide length)
 #' @param allele A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}
 #' @param pre_method Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
-#'
+#' @param client_path The path of local IEDB tools, used when setting get_method as client
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 #' @export
 #'
 #' @examples
-#' test <- vcf2binding(annovar_path = "~/software/annovar/",vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
+#' test <- vcf2binding(get_method="api",annovar_path = "~/software/annovar/",vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
 #'                     genome_version = "hg38",need_allsamples = FALSE,need_samples = "TUMOR",mhc_type = "MHC-I",pep_length = c(9,10),
 #'                     allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann")
-vcf2binding <- function(annovar_path,vcf_path,
+vcf2binding <- function(get_method=c("api","client"),annovar_path,vcf_path,
                         genome_version=c("hg19","hg38"),need_allsamples=FALSE,need_samples,mhc_type,pep_length,allele,
-                        pre_method){
+                        pre_method,client_path){
+  get_method <- match.arg(get_method)
   res <- vector("list",length = length(pep_length))
   names(res) <- pep_length
   for (i in seq_along(res)){
@@ -207,8 +209,8 @@ vcf2binding <- function(annovar_path,vcf_path,
   names(pre_res) <- pep_length
   for (i in seq_along(pre_res)){
     pep <- res[res$predicted_length == names(pre_res)[i],"ext_seqs_mt"]
-    pre_res[[i]] <- MHCbinding:::general_mhcbinding(mhc_type = mhc_type, length = pep_length[i],
-                                                    allele = allele,pre_method = pre_method, peptide = pep)
+    pre_res[[i]] <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type = mhc_type, length = pep_length[i],
+                                                    allele = allele,pre_method = pre_method, peptide = pep,client_path = client_path)
   }
 
   pre_res <- dplyr::bind_rows(pre_res)

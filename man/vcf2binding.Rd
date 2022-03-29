@@ -5,6 +5,7 @@
 \title{Predict peptide MHC binding based on VCF file.}
 \usage{
 vcf2binding(
+  get_method = c("api", "client"),
   annovar_path,
   vcf_path,
   genome_version = c("hg19", "hg38"),
@@ -13,10 +14,13 @@ vcf2binding(
   mhc_type,
   pep_length,
   allele,
-  pre_method
+  pre_method,
+  client_path
 )
 }
 \arguments{
+\item{get_method}{The way to predict, can be api or client.}
+
 \item{annovar_path}{Character, the install path of annovar.}
 
 \item{vcf_path}{Character, the path of VCF file needed to be converted.}
@@ -34,6 +38,8 @@ vcf2binding(
 \item{allele}{A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}}
 
 \item{pre_method}{Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}}
+
+\item{client_path}{The path of local IEDB tools, used when setting get_method as client}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).
@@ -42,7 +48,7 @@ A dataframe contains the predicted IC50 and precentile rank (if available).
 This function use \code{\link{vcf2seq}} to exacted mutated "new peptide" from VCF file, and predicted the binding affinity of these peptide with specific MHC allele using \code{\link{general_mhcbinding}}
 }
 \examples{
-test <- vcf2binding(annovar_path = "~/software/annovar/",vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
+test <- vcf2binding(get_method="api",annovar_path = "~/software/annovar/",vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
                     genome_version = "hg38",need_allsamples = FALSE,need_samples = "TUMOR",mhc_type = "MHC-I",pep_length = c(9,10),
                     allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann")
 }
