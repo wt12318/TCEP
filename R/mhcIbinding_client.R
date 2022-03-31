@@ -20,7 +20,7 @@ mhcIbinding_client <- function(client_path,
                                pre_method = c("ann","comblib_sidney2008","consensus",
                                               "netmhccons","netmhcpan_ba","netmhcpan_el",
                                               "netmhcstabpan","pickpocket","recommended",
-                                              "smm","smmpmbec"),tmp_dir){
+                                              "smm","smmpmbec"),tmp_dir=tempdir()){
 
   input_len <- nchar(peptide)
   max_len <- max(input_len)

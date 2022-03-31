@@ -121,6 +121,7 @@ maf2seq <- function(annovar_path,maf_path,need_allsamples=TRUE,need_samples,len)
 
 maf2binding <- function(get_method=c("api","client"),annovar_path,maf_path,need_allsamples=FALSE,need_samples,
                         mhc_type,pep_length,allele,pre_method,client_path){
+
   get_method <- match.arg(get_method)
   res <- vector("list",length = length(pep_length))
   names(res) <- pep_length

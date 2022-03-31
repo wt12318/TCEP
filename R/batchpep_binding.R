@@ -25,7 +25,8 @@ batchpep_binding <- function(get_method=c("api","client"),pep_file,mhc_type,pep_
     mutate(seq_num=row_number())
   pep1 <- paste(pep_dt$pep_seq, sep= ",")
   res <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type=mhc_type,length=pep_length,
-                                         allele=allele,pre_method=pre_method,peptide=pep1,client_path = client_path)
+                                         allele=allele,pre_method=pre_method,peptide=pep1,
+                                         client_path = client_path)
   pep <- left_join(
     pep_dt,res
   )

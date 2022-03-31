@@ -12,7 +12,7 @@ mhcIbinding_client(
   pre_method = c("ann", "comblib_sidney2008", "consensus", "netmhccons",
     "netmhcpan_ba", "netmhcpan_el", "netmhcstabpan", "pickpocket", "recommended", "smm",
     "smmpmbec"),
-  tmp_dir
+  tmp_dir = tempdir()
 )
 }
 \arguments{

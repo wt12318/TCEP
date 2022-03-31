@@ -224,7 +224,6 @@ vcf2binding <- function(get_method=c("api","client"),annovar_path,vcf_path,
     pre_res %>% rename(pep_start=start,pep_end=end),
     res %>% ungroup() %>%  select(chr,start,end,ref,alt,index,ext_seqs_mt)
   ) %>% select(-index)
-
   return(pre_res)
 }
 

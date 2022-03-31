@@ -12,21 +12,24 @@
 #'                   allele = "HLA-A*01:01",length = "8",
 #'                    pre_method = "netmhcpan_el")
 
-general_mhcbinding <- function(get_method=c("api","client"),mhc_type=c("MHC-I","MHC-II"),client_path,...){
+general_mhcbinding <- function(get_method=c("api","client"),mhc_type=c("MHC-I","MHC-II"),client_path,
+                               peptide,allele,length,pre_method,tmp_dir){
   mhc_type <- match.arg(mhc_type)
   get_method <- match.arg(get_method)
   if (mhc_type == "MHC-I"){
     if (get_method == "api"){
-      res <- mhcIbinding(...)
+      res <- mhcIbinding(peptide=peptide ,allele =allele ,length =length ,pre_method =pre_method )
     }else {
-      res <- mhcIbinding_client(client_path=client_path,...)
+      res <- mhcIbinding_client(client_path=client_path,tmp_dir=tmp_dir,
+                                peptide=peptide ,allele =allele ,length =length ,pre_method =pre_method)
     }
     return(res)
   }else{
     if (get_method == "api"){
-      res <- mhcIIbinding(...)
+      res <- mhcIIbinding(peptide=peptide ,allele =allele ,length =length ,pre_method =pre_method)
     }else {
-      res <- mhcIIbinding_client(client_path=client_path,...)
+      res <- mhcIIbinding_client(client_path=client_path,tmp_dir=tmp_dir,
+                                 peptide=peptide ,allele =allele ,length =length ,pre_method =pre_method)
     }
     return(res)
   }

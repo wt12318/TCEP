@@ -8,7 +8,11 @@ general_mhcbinding(
   get_method = c("api", "client"),
   mhc_type = c("MHC-I", "MHC-II"),
   client_path,
-  ...
+  peptide,
+  allele,
+  length,
+  pre_method,
+  tmp_dir
 )
 }
 \arguments{
