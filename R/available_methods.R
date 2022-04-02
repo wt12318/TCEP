@@ -21,6 +21,14 @@ available_methods <- function(get_methods=c("api","client"),
       return(MHCbinding::mhcIIbinding_api_methods[,1])
     }
   }else{
-    NULL ##To do
+    if(pre_type == "MHC-I"){
+      dt <- MHCbinding::mhcIbinding_api_methods
+      dt$method[9] <- "IEDB_recommended"
+      print(dplyr::as_tibble(dt))
+      return(dt[,1])
+    }else{
+      print(dplyr::as_tibble(MHCbinding::mhcIIbinding_api_methods))
+      return(MHCbinding::mhcIIbinding_api_methods[,1])
+    }
   }
 }
