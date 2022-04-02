@@ -22,15 +22,26 @@ batchpep_binding <- function(get_method=c("api","client"),pep_file,mhc_type,pep_
 
   pep_dt <- pep_dt %>%
     group_by(pre_len) %>%
-    mutate(seq_num=row_number())
-  pep1 <- paste(pep_dt$pep_seq, sep= ",")
-  res <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type=mhc_type,length=pep_length,
-                                         allele=allele,pre_method=pre_method,peptide=pep1,
-                                         client_path = client_path)
+    mutate(seq_num=row_number()) %>%
+    mutate(index=paste(pre_len,seq_num,sep = ":")) %>%
+    as.data.frame()
+
+  pep_length <- unique(pep_dt$pre_len)
+  pre_res <- vector("list",length = length(pep_length))
+  names(pre_res) <- pep_length
+  for (i in seq_along(pre_res)){
+    pep <- pep_dt[pep_dt$pre_len == names(pre_res)[i],"pep_seq"]
+    pre_res[[i]] <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type = mhc_type, length = pep_length[i],
+                                                    allele = allele,pre_method = pre_method, peptide = pep,
+                                                    client_path = client_path,tmp_dir = tempdir())
+  }
+
+  pre_res <- dplyr::bind_rows(pre_res)
+  pre_res <- pre_res %>% mutate(index=paste(length,seq_num,sep = ":"))
   pep <- left_join(
-    pep_dt,res
-  )
-  colnames(pep)[1] <- "query_pep"
+    pre_res,pep_dt %>% select(pep_seq,index)
+  ) %>% select(-index)
+  colnames(pep)[9] <- "query_pep"
   return(pep)
 }
 

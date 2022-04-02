@@ -39,7 +39,7 @@ maf2pep <- function(annovar_path,maf_path,
   system(comm_annotate)
   comm_coding <- paste0(annovar_path,"/coding_change.pl ",temp_dir,"/test.exonic_variant_function ",annovar_path,"/humandb/",
                         genome_version,"_ensGene.txt ",annovar_path,"/humandb/",genome_version,"_ensGeneMrna.fa ",
-                        "-includesnp -onlyAltering --outfile ",temp_dir,"/coding.txt")
+                        "-includesnp -onlyAltering --alltranscript --outfile ",temp_dir,"/coding.txt")
   system(comm_coding)
 
   dt <- seqinr::read.fasta(file = paste0(temp_dir,"/coding.txt"),seqtype = "AA",as.string = TRUE,whole.header = T)
@@ -48,6 +48,7 @@ maf2pep <- function(annovar_path,maf_path,
   pos_alter <- stringr::str_extract_all(variants,"p[.].+ p") %>% gsub(" p","",.)
   lines <- stringr::str_extract_all(variants,"line.+ ENST") %>% gsub(" ENST","",.) %>%
     gsub("line","",.) %>% as.numeric()
+  ENST <- stringr::str_extract_all(variants,"line.+ ENST[0-9]+") %>% gsub("line.+ ","",.)##extract transcripts
 
   mut_need <- annovar_input[lines,]
   pep_seq_mt <- dt[seq(2,length(dt),by=2)] %>% as.character()
@@ -55,6 +56,7 @@ maf2pep <- function(annovar_path,maf_path,
   mut_need$seq_wt <- pep_seq_wt
   mut_need$seq_mt <- pep_seq_mt
   mut_need$pos_alter <- pos_alter
+  mut_need$transcript <- ENST
   files_exist <- c(list.files(temp_dir,pattern = gsub(paste0(temp_dir,"/"),"",temp_file),full.names = T),
                    list.files(temp_dir,pattern = "test",full.names = T),
                    list.files(temp_dir,pattern = "coding.txt",full.names = T))##remove all temp files
@@ -132,12 +134,14 @@ maf2binding <- function(get_method=c("api","client"),annovar_path,maf_path,need_
   res <- dplyr::bind_rows(res,.id = "predicted_length")
   res <- res[which(nchar(res$ext_seqs_mt) >= as.numeric(res$predicted_length)),]
 
+  pep_length <- unique(res$predicted_length)
   pre_res <- vector("list",length = length(pep_length))
   names(pre_res) <- pep_length
   for (i in seq_along(pre_res)){
     pep <- res[res$predicted_length == names(pre_res)[i],"ext_seqs_mt"]
     pre_res[[i]] <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type = mhc_type, length = pep_length[i],
-                                                    allele = allele,pre_method = pre_method, peptide = pep,client_path = client_path)
+                                                    allele = allele,pre_method = pre_method, peptide = pep,
+                                                    client_path = client_path,tmp_dir = tempdir())
   }
 
   pre_res <- dplyr::bind_rows(pre_res)
@@ -148,8 +152,8 @@ maf2binding <- function(get_method=c("api","client"),annovar_path,maf_path,need_
   pre_res <- pre_res %>% mutate(index=paste(length,seq_num,sep = ":"))
   pre_res <- left_join(
     pre_res %>% rename(pep_start=start,pep_end=end),
-    res %>% ungroup() %>% select(chr,start,end,ref,alt,index,ext_seqs_mt)
-  )%>% select(-index)
+    res %>% ungroup() %>% select(chr,start,end,ref,alt,index,ext_seqs_mt,pos_alter,transcript)
+  ) %>% select(-index,-seq_num) %>% select(chr,start,end,ref,alt,ext_seqs_mt,pos_alter,transcript,everything())
 
   return(pre_res)
 }

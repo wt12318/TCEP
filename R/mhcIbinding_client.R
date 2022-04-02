@@ -71,8 +71,18 @@ mhcIbinding_client <- function(client_path,
       k <- k + 1
     }
   }
-  file.remove(paste0(temp_dir,"/a"),paste0(temp_dir,"/b"))
-  unlink(temp_dir,recursive = T)
+
+  if(file.exists(paste0(temp_dir,"/a"))){
+    file.remove(paste0(temp_dir,"/a"))
+  }
+
+  if(file.exists(paste0(temp_dir,"/b"))){
+    file.remove(paste0(temp_dir,"/b"))
+  }
+
+  if(temp_dir != tempdir()){
+    unlink(temp_dir,recursive = T)
+  }
   res <- dplyr::bind_rows(res)
   return(res)
 }
