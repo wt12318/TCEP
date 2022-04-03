@@ -148,9 +148,6 @@ txt2binding <- function(get_method=c("api","client"),annovar_path,txt_path,
     res %>% ungroup() %>% select(chr,start,end,ref,alt,index,ext_seqs_mt,pos_alter,transcript)
   ) %>% select(-index,-seq_num) %>% select(chr,start,end,ref,alt,ext_seqs_mt,pos_alter,transcript,everything())
 
-  if(temp_dir != tempdir()){
-    unlink(temp_dir,recursive = T)
-  }
   return(pre_res)
 }
 
