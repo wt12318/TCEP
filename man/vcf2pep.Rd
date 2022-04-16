@@ -9,7 +9,8 @@ vcf2pep(
   vcf_path,
   genome_version = c("hg19", "hg38"),
   need_allsamples = TRUE,
-  need_samples
+  need_samples,
+  num_thread
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ vcf2pep(
 \item{need_allsamples}{Logical. Whether need all samples when multi-sample VCF file is supplied.}
 
 \item{need_samples}{Character, the needed sample when multi-sample VCF file is supplied.}
+
+\item{num_thread}{specify the number of threads to be used in annotation}
 }
 \value{
 A dataframe containg wildtype and the mutated protein sequence.
@@ -36,5 +39,5 @@ coding_change.pl common_driver.exonic_variant_function humandb/hg19_ensGene.txt 
 \examples{
 pep <- vcf2pep(annovar_path = annovar_path,vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
                genome_version = "hg38",need_allsamples = FALSE,
-               need_samples = "TUMOR")
+               need_samples = "TUMOR",num_thread=1)
 }

@@ -4,7 +4,13 @@
 \alias{maf2pep}
 \title{Convert MAF file to mutated peptides}
 \usage{
-maf2pep(annovar_path, maf_path, need_allsamples = FALSE, need_samples)
+maf2pep(
+  annovar_path,
+  maf_path,
+  need_allsamples = FALSE,
+  need_samples,
+  num_thread
+)
 }
 \arguments{
 \item{annovar_path}{Character, the install path of annovar.}
@@ -14,6 +20,8 @@ maf2pep(annovar_path, maf_path, need_allsamples = FALSE, need_samples)
 \item{need_allsamples}{Logical. Whether need all samples when multi-sample MAF file is supplied.}
 
 \item{need_samples}{Character, the needed sample when multi-sample MAF file is supplied.}
+
+\item{num_thread}{specify the number of threads to be used in annotation}
 }
 \value{
 A dataframe containg wildtype and the mutated protein sequence.
@@ -27,5 +35,5 @@ coding_change.pl common_driver.exonic_variant_function humandb/hg19_ensGene.txt 
 }
 \examples{
 pep <- maf2pep(annovar_path = annovar_path,maf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
-               need_allsamples = TRUE)
+               need_allsamples = TRUE,num_thread=1)
 }

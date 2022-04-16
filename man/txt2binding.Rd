@@ -14,7 +14,8 @@ txt2binding(
   allele,
   pre_method,
   client_path,
-  tmp_dir
+  tmp_dir,
+  num_thread
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ txt2binding(
 \item{client_path}{The path of local IEDB tools, used when setting get_method as client}
 
 \item{tmp_dir}{Character, the temp dir}
+
+\item{num_thread}{specify the number of threads to be used in annotation}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).
@@ -47,5 +50,5 @@ This function use \code{\link{txt2seq}} to exacted mutated "new peptide" from TX
 \examples{
 test <- txt2binding(get_method="api",annovar_path = "~/software/annovar/",txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
                     genome_version = "hg19",mhc_type = "MHC-I",pep_length = c(9,10),
-                    allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",tmp_dir=tempdir())
+                    allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",tmp_dir=tempdir(),num_thread=1)
 }

@@ -4,7 +4,14 @@
 \alias{maf2seq}
 \title{Convert MAF file to mutated peptides and extract proper range of amino acids}
 \usage{
-maf2seq(annovar_path, maf_path, need_allsamples = TRUE, need_samples, len)
+maf2seq(
+  annovar_path,
+  maf_path,
+  need_allsamples = TRUE,
+  need_samples,
+  len,
+  num_thread
+)
 }
 \arguments{
 \item{annovar_path}{Character, the install path of annovar.}
@@ -16,6 +23,8 @@ maf2seq(annovar_path, maf_path, need_allsamples = TRUE, need_samples, len)
 \item{need_samples}{Character, the needed sample when multi-sample MAF file is supplied.}
 
 \item{len}{Numeric, the epitope length needed to predicted.}
+
+\item{num_thread}{specify the number of threads to be used in annotation}
 }
 \value{
 A dataframe containg wildtype and the mutated protein sequence, plus exacted sequence from mutated peptides.
@@ -25,5 +34,5 @@ This function use \code{\link{maf2pep}} to convert MAF file to mutated peptides,
 }
 \examples{
 maf2seq(annovar_path = annovar_path,maf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
-        need_allsamples = TRUE,len = 9)
+        need_allsamples = TRUE,len = 9,num_thread=1)
 }

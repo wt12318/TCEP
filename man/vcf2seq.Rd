@@ -10,7 +10,8 @@ vcf2seq(
   genome_version = c("hg19", "hg38"),
   need_allsamples = TRUE,
   need_samples,
-  len
+  len,
+  num_thread
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ vcf2seq(
 \item{need_samples}{Character, the needed sample when multi-sample VCF file is supplied.}
 
 \item{len}{Numeric, the epitope length needed to predicted.}
+
+\item{num_thread}{specify the number of threads to be used in annotation}
 }
 \value{
 A dataframe containg wildtype and the mutated protein sequence, plus exacted sequence from mutated peptides.
@@ -35,5 +38,5 @@ This function use \code{\link{vcf2pep}} to convert VCF file to mutated peptides,
 \examples{
 vcf2seq(annovar_path = annovar_path,vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
         genome_version = "hg38",
-        need_allsamples = FALSE,need_samples = "TUMOR",len = 9)
+        need_allsamples = FALSE,need_samples = "TUMOR",len = 9,num_thread=1)
 }

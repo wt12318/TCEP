@@ -9,7 +9,8 @@ txt2seq(
   txt_path,
   genome_version = c("hg19", "hg38"),
   len,
-  tmp_dir
+  tmp_dir,
+  num_thread
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ txt2seq(
 \item{len}{Numeric, the epitope length needed to predicted.}
 
 \item{tmp_dir}{Character, the temp dir}
+
+\item{num_thread}{specify the number of threads to be used in annotation}
 }
 \value{
 A dataframe containg wildtype and the mutated protein sequence, plus exacted sequence from mutated peptides.
@@ -31,5 +34,5 @@ This function use \code{\link{txt2pep}} to convert TXT file to mutated peptides,
 }
 \examples{
 txt2seq(annovar_path = annovar_path,txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
-        genome_version = "hg19",len = 9,tmp_dir=tempdir())
+        genome_version = "hg19",len = 9,tmp_dir=tempdir(),num_thread=1)
 }

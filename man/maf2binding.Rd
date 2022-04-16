@@ -14,7 +14,8 @@ maf2binding(
   pep_length,
   allele,
   pre_method,
-  client_path
+  client_path,
+  num_thread
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ maf2binding(
 \item{pre_method}{Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}}
 
 \item{client_path}{The path of local IEDB tools, used when setting get_method as client}
+
+\item{num_thread}{specify the number of threads to be used in annotation}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).
@@ -47,5 +50,5 @@ This function use \code{\link{maf2seq}} to exacted mutated "new peptide" from MA
 \examples{
 test <- maf2binding(get_method="api",annovar_path = "~/software/annovar/",maf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
                     need_allsamples = TRUE,mhc_type = "MHC-I",pep_length = c(9,10),
-                    allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann")
+                    allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",num_thread=1)
 }

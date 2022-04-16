@@ -4,7 +4,13 @@
 \alias{txt2pep}
 \title{Convert TXT file to mutated peptides}
 \usage{
-txt2pep(annovar_path, txt_path, genome_version = c("hg19", "hg38"), tmp_dir)
+txt2pep(
+  annovar_path,
+  txt_path,
+  genome_version = c("hg19", "hg38"),
+  tmp_dir,
+  num_thread
+)
 }
 \arguments{
 \item{annovar_path}{Character, the install path of annovar.}
@@ -14,6 +20,8 @@ txt2pep(annovar_path, txt_path, genome_version = c("hg19", "hg38"), tmp_dir)
 \item{genome_version}{Character, which genome build version of the TXT file, can be hg19 or hg38}
 
 \item{tmp_dir}{Character, the temp dir}
+
+\item{num_thread}{specify the number of threads to be used in annotation}
 }
 \value{
 A dataframe containg wildtype and the mutated protein sequence.
@@ -28,5 +36,5 @@ coding_change.pl common_driver.exonic_variant_function humandb/hg19_ensGene.txt 
 }
 \examples{
 pep <- txt2pep(annovar_path = annovar_path,txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
-               genome_version = "hg19",tmp_dir=tempdir())
+               genome_version = "hg19",tmp_dir=tempdir(),num_thread=1)
 }
