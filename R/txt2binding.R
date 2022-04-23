@@ -133,6 +133,12 @@ txt2binding <- function(get_method=c("api","client"),annovar_path,txt_path,
   }
   res <- dplyr::bind_rows(res,.id = "predicted_length")
   res <- res[which(nchar(res$ext_seqs_mt) >= as.numeric(res$predicted_length)),]
+  res <- res %>%
+    select(-seq_mt,-seq_wt) %>%
+    group_by(predicted_length,chr,start,end,ref,alt,indel,ext_seqs_mt,ext_seqs_wt) %>%
+    summarise(cdna=paste(cdna,collapse = ","),
+              transcript=paste(transcript,collapse = ","),
+              pos_alter=paste(pos_alter,collapse = ","))
 
   pep_length <- unique(res$predicted_length)
   pre_res_mt <- vector("list",length = length(pep_length))
@@ -142,11 +148,11 @@ txt2binding <- function(get_method=c("api","client"),annovar_path,txt_path,
   for (i in seq_along(pre_res_mt)){
     pep_mt <- res[res$predicted_length == names(pre_res_mt)[i],"ext_seqs_mt"]
     pre_res_mt[[i]] <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type = mhc_type, length = pep_length[i],
-                                                    allele = allele,pre_method = pre_method, peptide = pep_mt,client_path = client_path,
+                                                    allele = allele,pre_method = pre_method, peptide = pep_mt$ext_seqs_mt,client_path = client_path,
                                                     tmp_dir=tmp_dir)
     pep_wt <- res[res$predicted_length == names(pre_res_wt)[i],"ext_seqs_wt"]
     pre_res_wt[[i]] <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type = mhc_type, length = pep_length[i],
-                                                       allele = allele,pre_method = pre_method, peptide = pep_wt,client_path = client_path,
+                                                       allele = allele,pre_method = pre_method, peptide = pep_wt$ext_seqs_wt,client_path = client_path,
                                                        tmp_dir=tmp_dir)
   }
 
