@@ -122,7 +122,7 @@ txt2binding <- function(get_method=c("api","client"),annovar_path,txt_path,
                         pre_method,client_path,tmp_dir,num_thread){
 
   if (! dir.exists(tmp_dir)){
-    dir.create(tmp_dir)
+    dir.create(tmp_dir,recursive = TRUE)
   }
   get_method <- match.arg(get_method)
   res <- vector("list",length = length(pep_length))
