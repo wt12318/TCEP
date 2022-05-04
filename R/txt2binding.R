@@ -31,9 +31,11 @@ txt2pep <- function(annovar_path,txt_path,
                           " --thread ",num_thread)
   system(comm_annotate)
 
-  dt <- seqinr::read.fasta(file = paste0(temp_dir,"/myanno.refGene.fa"),seqtype = "AA",as.string = TRUE,
-                           whole.header = T)
-
+  dt <- try(seqinr::read.fasta(file = paste0(temp_dir,"/myanno.refGene.fa"),seqtype = "AA",as.string = TRUE,
+                               whole.header = T))
+  if ('try-error' %in% class(dt)){
+    return(NULL)
+  }
   variants <- names(dt)[seq(2,length(dt),by=2)]
   variants <- variants[grepl("protein-altering",variants)]
   if (length(variants) == 0){
