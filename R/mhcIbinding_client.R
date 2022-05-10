@@ -129,15 +129,15 @@ mhcIbinding_client <- function(client_path,
 #' @export
 #'
 #' @examples
-#' test <- mhcIbinding_client(peptide = "GHAHKVPRRLLKAAR",
+#' test <- mhcIIbinding_client(peptide = "GHAHKVPRRLLKAAR",
 #'                            allele = "DRB1*15:01",length = "14",
-#'                            pre_method = "recommended",client_path="~/software/mhc_i/src/",tmp_dir=tempdir())
+#'                            pre_method = "netmhciipan_ba",client_path="~/software/mhc_ii/",tmp_dir=tempdir())
 mhcIIbinding_client <- function(client_path,
                                 peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
                                 allele = c("DRB1*15:01","DPB1*04:01"),
                                 length = c(14,15),
-                                pre_method = c("IEDB_recommended", "consensus3", "NetMHCIIpan", "nn_align", "smm_align",
-                                               "comblib", "sturniolo"),tmp_dir=tempdir()){
+                                pre_method = c("comblib", "consensus3", "IEDB_recommended", "netmhciipan_el",
+                                               "netmhciipan_ba","nn_align", "smm_align","sturniolo"),tmp_dir=tempdir()){
   length <- match.arg(as.character(length),
                       choices = as.character(seq(11,30)),
                       several.ok=T)

@@ -28,7 +28,8 @@ available_methods <- function(get_methods=c("api","client"),
       return(dt[,1])
     }else{
       print(dplyr::as_tibble(MHCbinding::mhcIIbinding_client_methods))
-      return(MHCbinding::mhcIIbinding_client_methods[,1] %>% gsub(" .+","",.))
+      return(c("comblib", "consensus3", "IEDB_recommended", "netmhciipan_el",
+               "netmhciipan_ba","nn_align", "smm_align","sturniolo"))
     }
   }
 }
