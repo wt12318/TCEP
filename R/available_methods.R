@@ -27,8 +27,8 @@ available_methods <- function(get_methods=c("api","client"),
       print(dplyr::as_tibble(dt))
       return(dt[,1])
     }else{
-      print(dplyr::as_tibble(MHCbinding::mhcIIbinding_api_methods))
-      return(MHCbinding::mhcIIbinding_api_methods[,1])
+      print(dplyr::as_tibble(MHCbinding::mhcIIbinding_client_methods))
+      return(MHCbinding::mhcIIbinding_client_methods[,1] %>% gsub(" .+","",.))
     }
   }
 }

@@ -33,5 +33,5 @@ General MCHbinding
 \examples{
 general_mhcbinding(mhc_type = "MHC-I",peptide = "SLYNTVATLY",
                   allele = "HLA-A*01:01",length = "8",
-                   pre_method = "netmhcpan_el")
+                   pre_method = "netmhcpan_el",get_method="api")
 }
