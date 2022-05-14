@@ -17,14 +17,15 @@
 #' pep <- txt2pep(annovar_path = annovar_path,txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
 #'                genome_version = "hg19",tmp_dir=tempdir(),num_thread=1)
 txt2pep <- function(annovar_path,txt_path,
-                    genome_version=c("hg19","hg38"),tmp_dir,num_thread){
+                    genome_version=c("hg19","hg38","mm10","mm9"),tmp_dir,num_thread){
   genome_version <- match.arg(genome_version)
   mut <- data.table::fread(txt_path,data.table = F)
   mut <- mut[,1:5]
   colnames(mut) <- c("chr","start","end","ref","alt")
 
   temp_dir <- tmp_dir
-  comm_annotate <- paste0(annovar_path,"/table_annovar.pl ",txt_path," ",annovar_path,"/humandb/",
+  db <- ifelse(grepl("mm",genome_version),"/mm10db/","/humandb/")
+  comm_annotate <- paste0(annovar_path,"/table_annovar.pl ",txt_path," ",annovar_path,db,
                           " -build ",genome_version,
                           " --outfile ",temp_dir,"/myanno",
                           ' -protocol refGene -operation g  --codingarg "-includesnp -onlyAltering"',
@@ -128,7 +129,7 @@ txt2seq <- function(annovar_path,txt_path,
 #'                     genome_version = "hg19",mhc_type = "MHC-I",pep_length = c(9,10),
 #'                     allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",tmp_dir=tempdir(),num_thread=1)
 txt2binding <- function(get_method=c("api","client"),annovar_path,txt_path,
-                        genome_version=c("hg19","hg38"),mhc_type,pep_length,allele,
+                        genome_version=c("hg19","hg38","mm10","mm9"),mhc_type,pep_length,allele,
                         pre_method,client_path,tmp_dir,num_thread){
 
   if (! dir.exists(tmp_dir)){

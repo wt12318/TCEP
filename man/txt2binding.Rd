@@ -8,7 +8,7 @@ txt2binding(
   get_method = c("api", "client"),
   annovar_path,
   txt_path,
-  genome_version = c("hg19", "hg38"),
+  genome_version = c("hg19", "hg38", "mm10", "mm9"),
   mhc_type,
   pep_length,
   allele,

@@ -7,7 +7,7 @@
 txt2pep(
   annovar_path,
   txt_path,
-  genome_version = c("hg19", "hg38"),
+  genome_version = c("hg19", "hg38", "mm10", "mm9"),
   tmp_dir,
   num_thread
 )
