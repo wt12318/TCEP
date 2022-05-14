@@ -186,13 +186,23 @@ txt2binding <- function(get_method=c("api","client"),annovar_path,txt_path,
                                              pos_alter,cdna,transcript,everything())
     pre_res_mt$peptide_wt <- substr(pre_res_mt$ext_seqs_wt,pre_res_mt$pep_start,pre_res_mt$pep_end)
 
-    pre_res <- left_join(
-      pre_res_mt %>% mutate(index=paste(allele,peptide_wt,sep = ":")),
-      pre_res_wt %>% select(allele,peptide,ic50,rank) %>%
-        distinct_all(.keep_all = T) %>%
-        mutate(index=paste(allele,peptide,sep = ":")) %>%
-        select(index,ic50,rank) %>% rename(wt_ic50=ic50,wt_rank=rank)
-    ) %>% select(-index)
+    if ("ic50" %in% colnames(pre_res_mt)){
+      pre_res <- left_join(
+        pre_res_mt %>% mutate(index=paste(allele,peptide_wt,sep = ":")),
+        pre_res_wt %>% select(allele,peptide,ic50,rank) %>%
+          distinct_all(.keep_all = T) %>%
+          mutate(index=paste(allele,peptide,sep = ":")) %>%
+          select(index,ic50,rank) %>% rename(wt_ic50=ic50,wt_rank=rank)
+      ) %>% select(-index)
+    }else{
+      pre_res <- left_join(
+        pre_res_mt %>% mutate(index=paste(allele,peptide_wt,sep = ":")),
+        pre_res_wt %>% select(allele,peptide,rank) %>%
+          distinct_all(.keep_all = T) %>%
+          mutate(index=paste(allele,peptide,sep = ":")) %>%
+          select(index,rank) %>% rename(wt_rank=rank)
+      ) %>% select(-index)
+    }
     return(pre_res)
   }
 }
