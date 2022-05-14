@@ -74,6 +74,29 @@ res$method <- gsub("mhciiallele_","",res$method)
 mhcIIallele <- res
 usethis::use_data(mhcIIallele)
 
+###alleles for MHCII client
+netmhcpan_ba <- mhcIIallele %>% filter(method=="netmhciipan") %>% mutate(method="netmhciipan_ba")
+netmhcpan_el <- mhcIIallele %>% filter(method=="netmhciipan") %>% mutate(method="netmhciipan_el")
+dt <- data.table::fread("~/software/mhc_ii/all_alleles",nrows = 14,skip = 3,header = F)
+consensus3 <- data.frame(alleles=c(dt[,2:7] %>% unlist() %>% unname(),dt$V8[1]),method="consensus3")
+
+dt <- data.table::fread("~/software/mhc_ii/all_alleles",nrows = 11,skip = 17,header = F)
+comblib <- data.frame(alleles=c(dt$V2,dt$V3[1:5]),method="comblib")
+
+dt <- data.table::fread("~/software/mhc_ii/all_alleles",nrows = 11,skip = 31,header = F)
+smm_align <- data.frame(alleles=c(dt[,2:3] %>% unlist() %>% unname(),dt$V4[1:7]),method="smm_align")
+
+dt <- data.table::fread("~/software/mhc_ii/all_alleles",nrows = 29,skip = 45,header = F)
+nn_align <- data.frame(alleles=c(dt[,2:3] %>% unlist() %>% unname(),dt$V4[1:3]),method="nn_align")
+
+dt <- data.table::fread("~/software/mhc_ii/all_alleles",nrows = 15,skip = 77,header = F)
+sturniolo <- data.frame(alleles=c(dt[,2:4] %>% unlist() %>% unname(),dt$V5[1:6]),method="sturniolo")
+
+mhcIIallele_client <- bind_rows(netmhcpan_ba,netmhcpan_el,consensus3,comblib,smm_align,nn_align,sturniolo)
+
+IEDB_recommended <- mhcIIallele %>% filter(method=="recommended") %>% mutate(method="IEDB_recommended")
+mhcIIallele_client <- bind_rows(mhcIIallele_client,IEDB_recommended)
+usethis::use_data(mhcIIallele_client,overwrite = T)
 ###pep file
 dt <- random_peptides(len = 12,n=10)
 write.table(dt,file = "inst/extdata/random.pep",row.names = F,col.names = F,quote = F)

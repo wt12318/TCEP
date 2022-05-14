@@ -24,6 +24,6 @@ available_alleles <- function(pre_type = c("MHC-I","MHC-II"),
                             choices = c("comblib", "consensus3", "IEDB_recommended", "netmhciipan_el",
                                         "netmhciipan_ba","nn_align", "smm_align","sturniolo"))
     #print(mhcIIallele[mhcIIallele$method==pre_method,"alleles"])
-    return(mhcIIallele[mhcIIallele$method==pre_method,"alleles"])
+    return(mhcIIallele_client[mhcIIallele_client$method==pre_method,"alleles"])
   }
 }
