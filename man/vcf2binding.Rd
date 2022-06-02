@@ -16,7 +16,8 @@ vcf2binding(
   allele,
   pre_method,
   client_path,
-  num_thread
+  num_thread,
+  tmp_dir
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ vcf2binding(
 \item{client_path}{The path of local IEDB tools, used when setting get_method as client}
 
 \item{num_thread}{specify the number of threads to be used in annotation}
+
+\item{tmp_dir}{temp dir}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).

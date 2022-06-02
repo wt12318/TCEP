@@ -87,9 +87,9 @@ txt2seq <- function(annovar_path,txt_path,
     return(NULL)
   }else{
     pep <- pep %>%
-      mutate(pos = stringr::str_extract(pos_alter,"[0-9]+") %>% as.numeric()) %>%
-      rowwise() %>%
-      mutate(indel=ifelse(ref != "-" & alt != "-" & nchar(ref) == 1 & nchar(alt) == 1,"FALSE","TRUE")) %>%
+      dplyr::mutate(pos = stringr::str_extract(pos_alter,"[0-9]+") %>% as.numeric()) %>%
+      dplyr::rowwise() %>%
+      dplyr::mutate(indel=ifelse(ref != "-" & alt != "-" & nchar(ref) == 1 & nchar(alt) == 1,"FALSE","TRUE")) %>%
       as.data.frame()
     ext_seqs_mt <- mapply(MHCbinding::extractSeq,seq=pep$seq_mt,pos=as.numeric(pep$pos),
                           len=as.numeric(len),indel=pep$indel) %>% unname()
@@ -149,8 +149,8 @@ txt2binding <- function(get_method=c("api","client"),annovar_path,txt_path,
   }else{
     res <- res[which(nchar(res$ext_seqs_mt) >= as.numeric(res$predicted_length)),]
     res <- res %>%
-      select(-seq_mt,-seq_wt) %>%
-      group_by(predicted_length,chr,start,end,ref,alt,indel,ext_seqs_mt,ext_seqs_wt) %>%
+      dplyr::select(-seq_mt,-seq_wt) %>%
+      dplyr::group_by(predicted_length,chr,start,end,ref,alt,indel,ext_seqs_mt,ext_seqs_wt) %>%
       summarise(cdna=paste(cdna,collapse = ","),
                 transcript=paste(transcript,collapse = ","),
                 pos_alter=paste(pos_alter,collapse = ","))
@@ -175,33 +175,36 @@ txt2binding <- function(get_method=c("api","client"),annovar_path,txt_path,
     pre_res_wt <- dplyr::bind_rows(pre_res_wt)
 
     res <- res %>%
-      group_by(predicted_length) %>%
-      mutate(seq_num=row_number()) %>%
-      mutate(index=paste(predicted_length,seq_num,sep = ":"))
-    pre_res_mt <- pre_res_mt %>% mutate(index=paste(length,seq_num,sep = ":"))
+      dplyr::group_by(predicted_length) %>%
+      dplyr::mutate(seq_num=row_number()) %>%
+      dplyr::mutate(index=paste(predicted_length,seq_num,sep = ":"))
+    pre_res_mt <- pre_res_mt %>% dplyr::mutate(index=paste(length,seq_num,sep = ":"))
     pre_res_mt <- left_join(
-      pre_res_mt %>% rename(pep_start=start,pep_end=end),
-      res %>% ungroup() %>% select(chr,start,end,ref,alt,index,ext_seqs_mt,ext_seqs_wt,pos_alter,cdna,transcript)
-    ) %>% select(-index,-seq_num) %>% select(chr,start,end,ref,alt,ext_seqs_mt,ext_seqs_wt,
-                                             pos_alter,cdna,transcript,everything())
+      pre_res_mt %>% dplyr::rename(pep_start=start,pep_end=end),
+      res %>% dplyr::ungroup()
+      %>% dplyr::select(chr,start,end,ref,alt,index,ext_seqs_mt,ext_seqs_wt,pos_alter,cdna,transcript)
+    ) %>%
+      dplyr::select(-index,-seq_num) %>%
+      dplyr::select(chr,start,end,ref,alt,
+                    ext_seqs_mt,ext_seqs_wt,pos_alter,cdna,transcript,everything())
     pre_res_mt$peptide_wt <- substr(pre_res_mt$ext_seqs_wt,pre_res_mt$pep_start,pre_res_mt$pep_end)
 
     if ("ic50" %in% colnames(pre_res_mt)){
       pre_res <- left_join(
-        pre_res_mt %>% mutate(index=paste(allele,peptide_wt,sep = ":")),
-        pre_res_wt %>% select(allele,peptide,ic50,rank) %>%
-          distinct_all(.keep_all = T) %>%
-          mutate(index=paste(allele,peptide,sep = ":")) %>%
-          select(index,ic50,rank) %>% rename(wt_ic50=ic50,wt_rank=rank)
-      ) %>% select(-index)
+        pre_res_mt %>% dplyr::mutate(index=paste(allele,peptide_wt,sep = ":")),
+        pre_res_wt %>% dplyr::select(allele,peptide,ic50,rank) %>%
+          dplyr::distinct_all(.keep_all = T) %>%
+          dplyr::mutate(index=paste(allele,peptide,sep = ":")) %>%
+          dplyr::select(index,ic50,rank) %>% dplyr::rename(wt_ic50=ic50,wt_rank=rank)
+      ) %>% dplyr::select(-index)
     }else{
       pre_res <- left_join(
-        pre_res_mt %>% mutate(index=paste(allele,peptide_wt,sep = ":")),
-        pre_res_wt %>% select(allele,peptide,rank) %>%
-          distinct_all(.keep_all = T) %>%
-          mutate(index=paste(allele,peptide,sep = ":")) %>%
-          select(index,rank) %>% rename(wt_rank=rank)
-      ) %>% select(-index)
+        pre_res_mt %>% dplyr::mutate(index=paste(allele,peptide_wt,sep = ":")),
+        pre_res_wt %>% dplyr::select(allele,peptide,rank) %>%
+          dplyr::distinct_all(.keep_all = T) %>%
+          dplyr::mutate(index=paste(allele,peptide,sep = ":")) %>%
+          dplyr::select(index,rank) %>% dplyr::rename(wt_rank=rank)
+      ) %>% dplyr::select(-index)
     }
     return(pre_res)
   }

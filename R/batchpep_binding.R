@@ -21,9 +21,9 @@ batchpep_binding <- function(get_method=c("api","client"),pep_file,mhc_type,pep_
   pep_dt <- pep_dt[which(nchar(pep_dt$pep_seq) >= as.numeric(pep_dt$pre_len)),]
 
   pep_dt <- pep_dt %>%
-    group_by(pre_len) %>%
-    mutate(seq_num=row_number()) %>%
-    mutate(index=paste(pre_len,seq_num,sep = ":")) %>%
+    dplyr::group_by(pre_len) %>%
+    dplyr::mutate(seq_num=row_number()) %>%
+    dplyr::mutate(index=paste(pre_len,seq_num,sep = ":")) %>%
     as.data.frame()
 
   pep_length <- unique(pep_dt$pre_len)
@@ -37,10 +37,10 @@ batchpep_binding <- function(get_method=c("api","client"),pep_file,mhc_type,pep_
   }
 
   pre_res <- dplyr::bind_rows(pre_res)
-  pre_res <- pre_res %>% mutate(index=paste(length,seq_num,sep = ":"))
+  pre_res <- pre_res %>% dplyr::mutate(index=paste(length,seq_num,sep = ":"))
   pep <- left_join(
-    pre_res,pep_dt %>% select(pep_seq,index)
-  ) %>% select(-index)
+    pre_res,pep_dt %>% dplyr::select(pep_seq,index)
+  ) %>% dplyr::select(-index)
   colnames(pep)[9] <- "query_pep"
   return(pep)
 }
