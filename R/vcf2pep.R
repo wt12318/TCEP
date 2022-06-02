@@ -195,6 +195,7 @@ vcf2seq <- function(annovar_path,vcf_path,
 #' @param pre_method Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
 #' @param client_path The path of local IEDB tools, used when setting get_method as client
 #' @param num_thread specify the number of threads to be used in annotation
+#' @param tmp_dir temp dir
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 #' @export
 #'
@@ -204,7 +205,10 @@ vcf2seq <- function(annovar_path,vcf_path,
 #'                     allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",num_thread=1)
 vcf2binding <- function(get_method=c("api","client"),annovar_path,vcf_path,
                         genome_version=c("hg19","hg38"),need_allsamples=FALSE,need_samples,mhc_type,pep_length,allele,
-                        pre_method,client_path,num_thread){
+                        pre_method,client_path,num_thread,tmp_dir){
+  if (! dir.exists(tmp_dir)){
+    dir.create(tmp_dir,recursive = TRUE)
+  }
   get_method <- match.arg(get_method)
   res <- vector("list",length = length(pep_length))
   names(res) <- pep_length
