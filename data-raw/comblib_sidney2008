@@ -1,0 +1,20 @@
+List of available (MHC,PeptideLength) for comblib_sidney2008
+Species 	 MHC 	 PeptideLength
+mouse 	 H-2-Db 	 9
+mouse 	 H-2-Dd 	 9
+mouse 	 H-2-Kd 	 9
+mouse 	 H-2-Kk 	 9
+human 	 HLA-A*02:01 	 9
+human 	 HLA-A*30:01 	 9
+human 	 HLA-A*32:01 	 9
+human 	 HLA-A*68:02 	 9
+human 	 HLA-B*07:02 	 9
+human 	 HLA-B*08:01 	 9
+human 	 HLA-B*15:01 	 9
+human 	 HLA-B*15:03 	 9
+human 	 HLA-B*27:05 	 9
+human 	 HLA-B*35:01 	 9
+human 	 HLA-B*51:01 	 9
+human 	 HLA-B*53:01 	 9
+human 	 HLA-B*54:01 	 9
+human 	 HLA-B*58:01 	 9

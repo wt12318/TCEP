@@ -153,7 +153,8 @@ txt2binding <- function(get_method=c("api","client"),annovar_path,txt_path,
       dplyr::group_by(predicted_length,chr,start,end,ref,alt,indel,ext_seqs_mt,ext_seqs_wt) %>%
       summarise(cdna=paste(cdna,collapse = ","),
                 transcript=paste(transcript,collapse = ","),
-                pos_alter=paste(pos_alter,collapse = ","))
+                pos_alter=paste(pos_alter,collapse = ",")) %>%
+      ungroup()
 
     pep_length <- unique(res$predicted_length)
     pre_res_mt <- vector("list",length = length(pep_length))
@@ -189,23 +190,16 @@ txt2binding <- function(get_method=c("api","client"),annovar_path,txt_path,
                     ext_seqs_mt,ext_seqs_wt,pos_alter,cdna,transcript,everything())
     pre_res_mt$peptide_wt <- substr(pre_res_mt$ext_seqs_wt,pre_res_mt$pep_start,pre_res_mt$pep_end)
 
-    if ("ic50" %in% colnames(pre_res_mt)){
-      pre_res <- left_join(
-        pre_res_mt %>% dplyr::mutate(index=paste(allele,peptide_wt,sep = ":")),
-        pre_res_wt %>% dplyr::select(allele,peptide,ic50,rank) %>%
-          dplyr::distinct_all(.keep_all = T) %>%
-          dplyr::mutate(index=paste(allele,peptide,sep = ":")) %>%
-          dplyr::select(index,ic50,rank) %>% dplyr::rename(wt_ic50=ic50,wt_rank=rank)
-      ) %>% dplyr::select(-index)
-    }else{
-      pre_res <- left_join(
-        pre_res_mt %>% dplyr::mutate(index=paste(allele,peptide_wt,sep = ":")),
-        pre_res_wt %>% dplyr::select(allele,peptide,rank) %>%
-          dplyr::distinct_all(.keep_all = T) %>%
-          dplyr::mutate(index=paste(allele,peptide,sep = ":")) %>%
-          dplyr::select(index,rank) %>% dplyr::rename(wt_rank=rank)
-      ) %>% dplyr::select(-index)
-    }
+    pre_res_wt <- pre_res_wt %>%
+      dplyr::select(allele,peptide,res_cols[pre_method][[1]]) %>%
+      dplyr::distinct_all(.keep_all = T) %>%
+      dplyr::mutate(index=paste(allele,peptide,sep = ":")) %>%
+      dplyr::select(index,res_cols[pre_method][[1]]) %>%
+      dplyr::rename_with(function(x){paste0("wt_",x)},res_cols[pre_method][[1]])
+    pre_res <- left_join(
+      pre_res_mt %>% dplyr::mutate(index=paste(allele,peptide_wt,sep = ":")),
+      pre_res_wt
+    ) %>% dplyr::select(-index)
     return(pre_res)
   }
 }

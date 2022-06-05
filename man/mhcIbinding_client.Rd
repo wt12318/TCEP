@@ -8,7 +8,7 @@ mhcIbinding_client(
   client_path,
   peptide = c("GHAHKVPRRLLKAA", "SLYNTVATLY"),
   allele = c("HLA-A*01:01", "HLA-A*03:01"),
-  length = c(8, 9),
+  length,
   pre_method = c("ann", "comblib_sidney2008", "consensus", "netmhccons",
     "netmhcpan_ba", "netmhcpan_el", "netmhcstabpan", "pickpocket", "IEDB_recommended",
     "smm", "smmpmbec"),

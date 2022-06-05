@@ -33,7 +33,8 @@ mhcbinding_client <- function(client_path,
   k <- 1
   for (i in seq_along(allele)){
     for (j in seq_along(length)){
-      if(length[j] > max_len){
+      available_length <- available_len(pre_method,allele[i])
+      if(length[j] > max_len | !(length[j] %in% available_length)){
         next
       }
 
@@ -60,6 +61,9 @@ mhcbinding_client <- function(client_path,
       message("Predicting using local IEDB tools ... \n")
       mess <- system(command_run)
       tmp <- read.table(paste0(temp_dir,"/b"),header = T)
+      if (pre_method == "consensus"){
+        suppressWarnings(tmp <- tmp %>% mutate(across(7:13,as.numeric)))
+      }
       res[[k]] <- tmp
       k <- k + 1
     }
@@ -101,13 +105,13 @@ mhcbinding_client <- function(client_path,
 mhcIbinding_client <- function(client_path,
                                peptide = c("GHAHKVPRRLLKAA","SLYNTVATLY"),
                                allele = c("HLA-A*01:01","HLA-A*03:01"),
-                               length = c(8,9),
+                               length ,
                                pre_method = c("ann","comblib_sidney2008","consensus",
                                               "netmhccons","netmhcpan_ba","netmhcpan_el",
                                               "netmhcstabpan","pickpocket","IEDB_recommended",
                                               "smm","smmpmbec"),tmp_dir=tempdir()){
   length <- match.arg(as.character(length),
-                      choices = c("8","9", "10", "11", "12", "13", "14"),
+                      choices = available_len(pre_method,allele),
                       several.ok=T)
   pre_method <- match.arg(pre_method)
   res <- MHCbinding:::mhcbinding_client(client_path=client_path,peptide=peptide,

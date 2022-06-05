@@ -101,5 +101,38 @@ usethis::use_data(mhcIIallele_client,overwrite = T)
 dt <- random_peptides(len = 12,n=10)
 write.table(dt,file = "inst/extdata/random.pep",row.names = F,col.names = F,quote = F)
 
+###the allele for method has support length
+methods <- available_methods("client","MHC-I")
+res <- vector("list",11)
+for (i in methods){
+  command_run <- paste0('~/software/mhc_i/src/predict_binding.py ',
+                        i," mhc",' > ',paste0("data-raw/",i))
+  system(command_run)
+  dt <- data.table::fread(paste0("data-raw/",i),data.table = F,skip = 1)
+  dt$method <- i
+  res[[i]] <- dt
+}
+res <- bind_rows(res)
+res <- res %>% filter(Species=="human")
+available_lens <- res
+usethis::use_data(available_lens)
 
-
+###各种方法的列名
+smmpmbec <- c("ic50","rank")
+smm <- c("ic50","rank")
+IEDB_recommended <- c("score","rank")
+pickpocket <- c("ic50","rank")
+netmhcstabpan <- c("ic50","rank")
+netmhcpan_el <- c("score","rank")
+netmhcpan_ba <- c("ic50","rank")
+netmhccons <- c("ic50","rank")
+comblib_sidney2008 <- c("score","rank")
+ann <- c("ic50","rank")
+consensus <- colnames(consensus_method_res)[16:22]
+res_cols <- list(smmpmbec,smm,IEDB_recommended,pickpocket,
+                 netmhcstabpan,netmhcpan_el,netmhcpan_ba,netmhccons,
+                 comblib_sidney2008,ann,consensus)
+names(res_cols) <- c("smmpmbec","smm","IEDB_recommended","pickpocket",
+                     "netmhcstabpan","netmhcpan_el","netmhcpan_ba","netmhccons",
+                     "comblib_sidney2008","ann","consensus")
+usethis::use_data(res_cols)
