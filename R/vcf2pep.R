@@ -202,7 +202,7 @@ vcf2seq <- function(annovar_path,vcf_path,
 #' @examples
 #' test <- vcf2binding(get_method="api",annovar_path = "~/software/annovar/",vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
 #'                     genome_version = "hg38",need_allsamples = FALSE,need_samples = "TUMOR",mhc_type = "MHC-I",pep_length = c(9,10),
-#'                     allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",num_thread=1)
+#'                     allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",num_thread=1,tmp_dir=tempdir())
 vcf2binding <- function(get_method=c("api","client"),annovar_path,vcf_path,
                         genome_version=c("hg19","hg38"),need_allsamples=FALSE,need_samples,mhc_type,pep_length,allele,
                         pre_method,client_path,num_thread,tmp_dir){
@@ -218,54 +218,64 @@ vcf2binding <- function(get_method=c("api","client"),annovar_path,vcf_path,
                         num_thread=num_thread)
   }
   res <- dplyr::bind_rows(res,.id = "predicted_length")
-  res <- res[which(nchar(res$ext_seqs_mt) >= as.numeric(res$predicted_length)),]
+  if(nrow(res)==0){
+    message("There is no peptides!")
+    return(NULL)
+  }else{
+    res <- res[which(nchar(res$ext_seqs_mt) >= as.numeric(res$predicted_length)),]
+    res <- res %>%
+      dplyr::select(-seq_mt,-seq_wt) %>%
+      dplyr::group_by(predicted_length,chr,start,end,ref,alt,indel,ext_seqs_mt,ext_seqs_wt) %>%
+      summarise(cdna=paste(cdna,collapse = ","),
+                transcript=paste(transcript,collapse = ","),
+                pos_alter=paste(pos_alter,collapse = ",")) %>%
+      ungroup()
 
-  res <- res %>%
-    dplyr::select(-seq_mt,-seq_wt) %>%
-    dplyr::group_by(predicted_length,chr,start,end,ref,alt,indel,ext_seqs_mt,ext_seqs_wt) %>%
-    summarise(cdna=paste(cdna,collapse = ","),
-              transcript=paste(transcript,collapse = ","),
-              pos_alter=paste(pos_alter,collapse = ","))
+    pep_length <- unique(res$predicted_length)
+    pre_res_mt <- vector("list",length = length(pep_length))
+    pre_res_wt <- vector("list",length = length(pep_length))
+    names(pre_res_mt) <- pep_length
+    names(pre_res_wt) <- pep_length
+    for (i in seq_along(pre_res_mt)){
+      pep_mt <- res[res$predicted_length == names(pre_res_mt)[i],"ext_seqs_mt"]
+      pre_res_mt[[i]] <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type = mhc_type, length = pep_length[i],
+                                                         allele = allele,pre_method = pre_method, peptide = pep_mt$ext_seqs_mt,client_path = client_path,
+                                                         tmp_dir=tmp_dir)
+      pep_wt <- res[res$predicted_length == names(pre_res_wt)[i],"ext_seqs_wt"]
+      pre_res_wt[[i]] <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type = mhc_type, length = pep_length[i],
+                                                         allele = allele,pre_method = pre_method, peptide = pep_wt$ext_seqs_wt,client_path = client_path,
+                                                         tmp_dir=tmp_dir)
+    }
 
-  pep_length <- unique(res$predicted_length)
-  pre_res_mt <- vector("list",length = length(pep_length))
-  pre_res_wt <- vector("list",length = length(pep_length))
-  names(pre_res_mt) <- pep_length
-  names(pre_res_wt) <- pep_length
-  for (i in seq_along(pre_res_mt)){
-    pep_mt <- res[res$predicted_length == names(pre_res_mt)[i],"ext_seqs_mt"]
-    pre_res_mt[[i]] <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type = mhc_type, length = pep_length[i],
-                                                       allele = allele,pre_method = pre_method, peptide = pep_mt$ext_seqs_mt,client_path = client_path,
-                                                       tmp_dir=tmp_dir)
-    pep_wt <- res[res$predicted_length == names(pre_res_wt)[i],"ext_seqs_wt"]
-    pre_res_wt[[i]] <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type = mhc_type, length = pep_length[i],
-                                                       allele = allele,pre_method = pre_method, peptide = pep_wt$ext_seqs_wt,client_path = client_path,
-                                                       tmp_dir=tmp_dir)
-  }
+    pre_res_mt <- dplyr::bind_rows(pre_res_mt)
+    pre_res_wt <- dplyr::bind_rows(pre_res_wt)
 
-  pre_res_mt <- dplyr::bind_rows(pre_res_mt)
-  pre_res_wt <- dplyr::bind_rows(pre_res_wt)
+    res <- res %>%
+      dplyr::group_by(predicted_length) %>%
+      dplyr::mutate(seq_num=row_number()) %>%
+      dplyr::mutate(index=paste(predicted_length,seq_num,sep = ":"))
+    pre_res_mt <- pre_res_mt %>% dplyr::mutate(index=paste(length,seq_num,sep = ":"))
+    pre_res_mt <- left_join(
+      pre_res_mt %>% dplyr::rename(pep_start=start,pep_end=end),
+      res %>% dplyr::ungroup()
+      %>% dplyr::select(chr,start,end,ref,alt,index,ext_seqs_mt,ext_seqs_wt,pos_alter,cdna,transcript)
+    ) %>%
+      dplyr::select(-index,-seq_num) %>%
+      dplyr::select(chr,start,end,ref,alt,
+                    ext_seqs_mt,ext_seqs_wt,pos_alter,cdna,transcript,everything())
+    pre_res_mt$peptide_wt <- substr(pre_res_mt$ext_seqs_wt,pre_res_mt$pep_start,pre_res_mt$pep_end)
 
-  res <- res %>%
-    dplyr::group_by(predicted_length) %>%
-    dplyr::mutate(seq_num=row_number()) %>%
-    dplyr::mutate(index=paste(predicted_length,seq_num,sep = ":"))
-  pre_res_mt <- pre_res_mt %>% mutate(index=paste(length,seq_num,sep = ":"))
-  pre_res_mt <- left_join(
-    pre_res_mt %>% dplyr::rename(pep_start=start,pep_end=end),
-    res %>% dplyr::ungroup() %>% dplyr::select(chr,start,end,ref,alt,index,ext_seqs_mt,ext_seqs_wt,pos_alter,cdna,transcript)
-  ) %>% dplyr::select(-index,-seq_num) %>%
-    dplyr::select(chr,start,end,ref,alt,ext_seqs_mt,ext_seqs_wt,
-                                           pos_alter,cdna,transcript,everything())
-  pre_res_mt$peptide_wt <- substr(pre_res_mt$ext_seqs_wt,pre_res_mt$pep_start,pre_res_mt$pep_end)
-
-  pre_res <- left_join(
-    pre_res_mt %>% dplyr::mutate(index=paste(allele,peptide_wt,sep = ":")),
-    pre_res_wt %>% dplyr::select(allele,peptide,ic50,rank) %>%
+    pre_res_wt <- pre_res_wt %>%
+      dplyr::select(allele,peptide,res_cols[pre_method][[1]]) %>%
       dplyr::distinct_all(.keep_all = T) %>%
       dplyr::mutate(index=paste(allele,peptide,sep = ":")) %>%
-      dplyr::select(index,ic50,rank) %>% dplyr::rename(wt_ic50=ic50,wt_rank=rank)
-  ) %>% dplyr::select(-index)
-  return(pre_res)
+      dplyr::select(index,res_cols[pre_method][[1]]) %>%
+      dplyr::rename_with(function(x){paste0("wt_",x)},res_cols[pre_method][[1]])
+    pre_res <- left_join(
+      pre_res_mt %>% dplyr::mutate(index=paste(allele,peptide_wt,sep = ":")),
+      pre_res_wt
+    ) %>% dplyr::select(-index)
+    return(pre_res)
+  }
 }
 

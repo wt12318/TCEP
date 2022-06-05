@@ -53,5 +53,5 @@ This function use \code{\link{maf2seq}} to exacted mutated "new peptide" from MA
 \examples{
 test <- maf2binding(get_method="api",annovar_path = "~/software/annovar/",maf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
                     need_allsamples = TRUE,mhc_type = "MHC-I",pep_length = c(9,10),
-                    allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",num_thread=1)
+                    allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",num_thread=1,tmp_dir=tempdir())
 }
