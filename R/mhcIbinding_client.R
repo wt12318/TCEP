@@ -33,7 +33,7 @@ mhcbinding_client <- function(client_path,
   k <- 1
   for (i in seq_along(allele)){
     for (j in seq_along(length)){
-      if (pre_method == "MHC-I"){
+      if (mhc_type == "I"){
         available_length <- available_len(pre_method,allele[i])
       }else{
         available_length <- c(11:30)

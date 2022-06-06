@@ -265,12 +265,21 @@ vcf2binding <- function(get_method=c("api","client"),annovar_path,vcf_path,
                     ext_seqs_mt,ext_seqs_wt,pos_alter,cdna,transcript,everything())
     pre_res_mt$peptide_wt <- substr(pre_res_mt$ext_seqs_wt,pre_res_mt$pep_start,pre_res_mt$pep_end)
 
-    pre_res_wt <- pre_res_wt %>%
-      dplyr::select(allele,peptide,res_cols[pre_method][[1]]) %>%
-      dplyr::distinct_all(.keep_all = T) %>%
-      dplyr::mutate(index=paste(allele,peptide,sep = ":")) %>%
-      dplyr::select(index,res_cols[pre_method][[1]]) %>%
-      dplyr::rename_with(function(x){paste0("wt_",x)},res_cols[pre_method][[1]])
+    if (mhc_type == "MHC-I"){
+      pre_res_wt <- pre_res_wt %>%
+        dplyr::select(allele,peptide,res_cols[pre_method][[1]]) %>%
+        dplyr::distinct_all(.keep_all = T) %>%
+        dplyr::mutate(index=paste(allele,peptide,sep = ":")) %>%
+        dplyr::select(index,res_cols[pre_method][[1]]) %>%
+        dplyr::rename_with(function(x){paste0("wt_",x)},res_cols[pre_method][[1]])
+    }else{
+      pre_res_wt <- pre_res_wt %>%
+        dplyr::select(allele,peptide,res_cols_ii[pre_method][[1]]) %>%
+        dplyr::distinct_all(.keep_all = T) %>%
+        dplyr::mutate(index=paste(allele,peptide,sep = ":")) %>%
+        dplyr::select(index,res_cols_ii[pre_method][[1]]) %>%
+        dplyr::rename_with(function(x){paste0("wt_",x)},res_cols_ii[pre_method][[1]])
+    }
     pre_res <- left_join(
       pre_res_mt %>% dplyr::mutate(index=paste(allele,peptide_wt,sep = ":")),
       pre_res_wt
