@@ -118,6 +118,7 @@ available_lens <- res
 usethis::use_data(available_lens)
 
 ###各种方法的列名
+#MHC-I
 smmpmbec <- c("ic50","rank")
 smm <- c("ic50","rank")
 IEDB_recommended <- c("score","rank")
@@ -136,3 +137,31 @@ names(res_cols) <- c("smmpmbec","smm","IEDB_recommended","pickpocket",
                      "netmhcstabpan","netmhcpan_el","netmhcpan_ba","netmhccons",
                      "comblib_sidney2008","ann","consensus")
 usethis::use_data(res_cols)
+
+##MHC-II
+method <- available_methods("client","MHC-II")
+pre_method <- method[8]
+allele <- available_alleles("MHC-II",pre_method)[1,] %>% unlist()
+test <- txt2binding(get_method="client",annovar_path = "~/software/annovar/",
+                    txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
+                    genome_version = "hg19",mhc_type = "MHC-II",pep_length = c(14),
+                    allele = allele,pre_method = pre_method,
+                    tmp_dir=tempdir(),num_thread=1,client_path = "~/software/mhc_ii/")
+comblib <- c("ic50","percentile_rank","adjusted_rank")
+consensus3 <- c("consensus_percentile_rank","adjusted_consensus_percentile_rank","comblib_core",
+                "comblib_score","comblib_rank","adjusted_comblib_rank","smm_align_core",
+                "smm_align_ic50","smm_align_rank",
+                "adjusted_smm_align_rank","nn_align_core","nn_align_ic50",
+                "nn_align_rank","adjusted_nn_align_rank","sturniolo_core",
+                "sturniolo_score","sturniolo_rank","adjusted_sturniolo_rank" )
+IEDB_recommended <- IEDB_rem_mhcii
+netmhciipan_el <- c("score","percentile_rank")
+netmhciipan_ba <- c("ic50","percentile_rank")
+nn_align <- c("ic50","percentile_rank","adjusted_rank")
+smm_align <- c("ic50","percentile_rank","adjusted_rank")
+sturniolo <- c("score","percentile_rank","adjusted_rank")
+res_cols_ii <- list(comblib,consensus3,IEDB_recommended,netmhciipan_el,
+                    netmhciipan_ba,nn_align,smm_align,sturniolo)
+names(res_cols_ii) <- c("comblib","consensus3","IEDB_recommended","netmhciipan_el",
+                     "netmhciipan_ba","nn_align","smm_align","sturniolo")
+usethis::use_data(res_cols_ii)
