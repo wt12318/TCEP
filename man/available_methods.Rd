@@ -4,15 +4,12 @@
 \alias{available_methods}
 \title{Show available prediction methods for MHC-I or MHC-II}
 \usage{
-available_methods(
-  get_methods = c("api", "client"),
-  pre_type = c("MHC-I", "MHC-II")
-)
+available_methods(pre_type = c("Binding", "Processing", "Immuno"))
 }
 \arguments{
-\item{get_methods}{Character, which method to used for predicting MHC-peptide binding, can be api, refering to IEDB API and client, refering to local client}
-
 \item{pre_type}{Character, which MHC type need to be predicted, can be MHC-I or MHC-II}
+
+\item{get_methods}{Character, which method to used for predicting MHC-peptide binding, can be api, refering to IEDB API and client, refering to local client}
 }
 \value{
 A dataframe (tibble) contains two columns of method and corresponding version.
@@ -21,5 +18,5 @@ A dataframe (tibble) contains two columns of method and corresponding version.
 Show available prediction methods for MHC-I or MHC-II
 }
 \examples{
-available_methods("api","MHC-I")
+available_methods("MHC-I","Binding")
 }
