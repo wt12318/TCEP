@@ -5,8 +5,7 @@
 \title{General MCHbinding}
 \usage{
 general_mhcbinding(
-  get_method = c("api", "client"),
-  mhc_type = c("MHC-I", "MHC-II"),
+  hla_type = c("I", "II"),
   client_path,
   peptide,
   allele,
@@ -16,11 +15,11 @@ general_mhcbinding(
 )
 }
 \arguments{
-\item{get_method}{The way to predict, can be api or client}
-
-\item{mhc_type}{MHC class}
+\item{hla_type}{HLA class}
 
 \item{client_path}{The path of local IEDB tools, used when setting get_method as client}
+
+\item{get_method}{The way to predict, can be api or client}
 
 \item{...}{Other para passed to mhcIbing or mhcIIbind}
 }
@@ -31,7 +30,8 @@ Dataframe
 General MCHbinding
 }
 \examples{
-general_mhcbinding(mhc_type = "MHC-I",peptide = "SLYNTVATLY",
-                  allele = "HLA-A*01:01",length = "8",
-                   pre_method = "netmhcpan_el",get_method="api")
+general_mhcbinding(hla_type = "I",peptide = "SLYNTVATLY",
+                   allele = "HLA-A*01:01",length = "8",
+                   pre_method = "netmhcpan_el",
+                   client_path="~/software/mhc_i/src/",tmp_dir=tmp())
 }

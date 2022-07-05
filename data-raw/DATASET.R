@@ -38,6 +38,23 @@ mhcIallele <- mhcIallele %>%
   rename(alleles=MHC)
 usethis::use_data(mhcIallele,overwrite = T)
 
+mhcIallele <- mhcIallele
+load("~/MHCbinding/data-raw/mhcnuggest_alleles.Rdata")
+mhcIallele <- bind_rows(
+  mhcIallele,
+  data.frame(alleles = mhcnuggest$V1,
+             method = c(rep("mhcnuggest",nrow(mhcnuggest))))
+)
+
+mhcflurry <- read.csv("data-raw/class1_pseudosequences.csv")
+mhcflurry <- mhcflurry %>%
+  filter(grepl("HLA",allele))
+mhcIallele <- bind_rows(
+  mhcIallele,
+  data.frame(alleles = mhcflurry$allele,
+             method = c(rep("mhcflurry",nrow(mhcflurry))))
+)
+usethis::use_data(mhcIallele,overwrite = T)
 ###MHC-II
 for (i in mhcIIbinding_api_methods$method){
   i <- gsub(" \\(netmhcii\\)","",i)
@@ -96,6 +113,14 @@ mhcIIallele_client <- bind_rows(netmhcpan_ba,netmhcpan_el,consensus3,comblib,smm
 
 IEDB_recommended <- mhcIIallele %>% filter(method=="recommended") %>% mutate(method="IEDB_recommended")
 mhcIIallele_client <- bind_rows(mhcIIallele_client,IEDB_recommended)
+usethis::use_data(mhcIIallele_client,overwrite = T)
+
+mhcIIallele_client <- mhcIIallele_client %>% select(-`method == "IEDB_recommended"`)
+mhcIIallele_client <- bind_rows(
+  mhcIIallele_client,
+  data.frame(alleles = mhcnuggest2$V1,
+             method = c(rep("mhcnuggest",nrow(mhcnuggest2))))
+)
 usethis::use_data(mhcIIallele_client,overwrite = T)
 ###pep file
 dt <- random_peptides(len = 12,n=10)
@@ -165,3 +190,25 @@ res_cols_ii <- list(comblib,consensus3,IEDB_recommended,netmhciipan_el,
 names(res_cols_ii) <- c("comblib","consensus3","IEDB_recommended","netmhciipan_el",
                      "netmhciipan_ba","nn_align","smm_align","sturniolo")
 usethis::use_data(res_cols_ii)
+
+###netChop alleles
+netChop_alleles <- readRDS("~/MHCbinding/data-raw/netChop_alleles.rds")
+colnames(netChop_alleles) <- "Allele"
+NetCTLpan_alleles <- netChop_alleles
+usethis::use_data(NetCTLpan_alleles)
+
+###immuno alleles
+iedb_imm_alleles <- readRDS("~/MHCbinding/data-raw/iedb_imm_alleles.rds")
+prime_alleles <- read.table("data-raw/PRIME_alleles.txt")
+deepimmuno <- read.table("data-raw/hla2paratopeTable_aligned.txt",header = T)
+seq2neo_alleles <- mhcIallele[mhcIallele$method=="netmhcpan_el","alleles"] %>%
+  unlist() %>% unname()
+
+immuno_alleles <- data.frame(methods = c(rep("IEDB",length(iedb_imm_alleles)),
+                                         rep("PRIME",nrow(prime_alleles)),
+                                         rep("DeepImmuno",nrow(deepimmuno)),
+                                         rep("Seq2Neo-CNN",length(seq2neo_alleles))),
+                             alleles = c(iedb_imm_alleles,prime_alleles$V1,
+                                         deepimmuno$HLA,
+                                         seq2neo_alleles))
+usethis::use_data(immuno_alleles)

@@ -1,4 +1,4 @@
-#' @title Predicting MHC peptide binding
+#' @title Predicting HLA peptide binding
 #'
 #' @description  This is the wrapped function for IEDB commond tools.
 #' @param peptide A character vector of input protein sequence.
@@ -6,14 +6,15 @@
 #' @param length A numeric or character vector, indicating the length for which to make predictions. For MHC-I, the length can be 8-14
 #' @param pre_method Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
 #' @param tmp_dir Character, the temp dir
-#' @param mhc_type MHC type, I or II
+#' @param hla_type HLA type, I or II
+#' @param method_type, which type prediction method used, could be "Binding", "Processing" or "Immuno"
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 
 mhcbinding_client <- function(client_path,
                               peptide,
-                              allele,
+                              allele=NULL,
                               length,
-                              pre_method,tmp_dir,mhc_type){
+                              pre_method,tmp_dir,hla_type,method_type){
   input_len <- nchar(peptide)
   max_len <- max(input_len)
   min_len <- min(input_len)
@@ -33,7 +34,7 @@ mhcbinding_client <- function(client_path,
   k <- 1
   for (i in seq_along(allele)){
     for (j in seq_along(length)){
-      if (mhc_type == "I"){
+      if (hla_type == "I"){
         available_length <- available_len(pre_method,allele[i])
       }else{
         available_length <- c(11:30)
@@ -55,14 +56,44 @@ mhcbinding_client <- function(client_path,
 
 
       file.create(paste0(temp_dir,"/b"))
-      if (mhc_type == "II"){
-        command_run <- paste0(client_path,'mhc_II_binding.py ',pre_method," ",allele[i]," ",paste0(temp_dir,"/a "),length[j]," ",
-                              ' > ',paste0(temp_dir,"/b"))
-      }else{
-        command_run <- paste0(client_path,'predict_binding.py ',pre_method," ",allele[i]," ",length[j]," ",paste0(temp_dir,"/a"),
-                              ' > ',paste0(temp_dir,"/b"))
+      if (method_type == "Binding"){
+        if (hla_type == "II"){
+          if (pre_method == "mhcnuggets"){
+            ##TODO add mhcnugges
+          }else{
+            command_run <- paste0(client_path,'mhc_II_binding.py ',pre_method," ",allele[i]," ",paste0(temp_dir,"/a "),length[j]," ",
+                                  ' > ',paste0(temp_dir,"/b"))
+          }
+        }else{
+          if (pre_method %in% c("mhcflurry","mhcnuggets")){
+            ##TODO add two method
+          }else{
+            command_run <- paste0(client_path,'predict_binding.py ',pre_method," ",allele[i]," ",length[j]," ",paste0(temp_dir,"/a"),
+                                  ' > ',paste0(temp_dir,"/b"))
+          }
+        }
       }
-      message("Predicting using local IEDB tools ... \n")
+
+      if (method_type == "Processing"){
+        ##TODO add netchop and netctlpan
+      }
+
+      if (method_type == "Immuno"){
+        if (pre_method == "IEDB"){
+          ##TODO add iedb method
+        }
+        if (pre_method == "PRIME2.0"){
+          ##TODO add PRIME2.0
+        }
+        if (pre_method == "DeepImmuno"){
+          ##TODO add DeepImmuno
+        }
+        if (pre_method == "Seq2Neo-CNN"){
+          ##TODO add seq2Neo-CNN
+        }
+      }
+
+      cat("Predicting using ",pre_method,"\n")
       mess <- system(command_run)
       tmp <- read.table(paste0(temp_dir,"/b"),header = T)
       if (pre_method == "consensus"){
@@ -95,10 +126,11 @@ mhcbinding_client <- function(client_path,
 #'
 #' @description  This is the wrapped function for IEDB commond tools.
 #' @param peptide A character vector of input protein sequence.
-#' @param allele A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}.
+#' @param allele A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}. For `Netchop`, allele is not needed.
 #' @param length A numeric or character vector, indicating the length for which to make predictions. For MHC-I, the length can be 8-14
 #' @param pre_method Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
 #' @param tmp_dir Character, the temp dir
+#' @param method_type, which type prediction method used, could be "Binding", "Processing" or "Immuno"
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 #' @export
 #'
@@ -113,14 +145,19 @@ mhcIbinding_client <- function(client_path,
                                pre_method = c("ann","comblib_sidney2008","consensus",
                                               "netmhccons","netmhcpan_ba","netmhcpan_el",
                                               "netmhcstabpan","pickpocket","IEDB_recommended",
-                                              "smm","smmpmbec"),tmp_dir=tempdir()){
+                                              "smm","smmpmbec","mhcflurry","mhcnuggets",
+                                              "IEDB","PRIME2.0","DeepImmuno",
+                                              "Seq2Neo-CNN","Netchop","NetCTLpan"),
+                               tmp_dir=tempdir(),
+                               method_type = c("Binding","Processing","Immuno")){
   length <- match.arg(as.character(length),
                       choices = available_len(pre_method,allele),
                       several.ok=T)
   pre_method <- match.arg(pre_method)
+  method_type <- match.arg(method_type)
   res <- MHCbinding:::mhcbinding_client(client_path=client_path,peptide=peptide,
                                         allele=allele,length=length,pre_method=pre_method,tmp_dir=tmp_dir,
-                                        mhc_type = "I")
+                                        mhc_type = "I",method_type=method_type)
   return(res)
 }
 
@@ -133,6 +170,7 @@ mhcIbinding_client <- function(client_path,
 #' @param length A numeric or character vector, indicating the length for which to make predictions. For MHC-II, the length can be 11-30
 #' @param pre_method Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
 #' @param tmp_dir Character, the temp dir
+#' @param method_type, which type prediction method used, for HLA-II , it can only be "Binding".
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 #' @export
 #'
@@ -144,14 +182,19 @@ mhcIIbinding_client <- function(client_path,
                                 peptide = c("GHAHKVPRRLLKAAR","LKAADASADADGSGSGSGSG"),
                                 allele = c("DRB1*15:01","DPB1*04:01"),
                                 length = c(14,15),
-                                pre_method = c("comblib", "consensus3", "IEDB_recommended", "netmhciipan_el",
-                                               "netmhciipan_ba","nn_align", "smm_align","sturniolo"),tmp_dir=tempdir()){
+                                pre_method = c("comblib", "consensus3",
+                                               "IEDB_recommended", "netmhciipan_el",
+                                               "netmhciipan_ba","nn_align",
+                                               "smm_align","sturniolo","mhcnuggets"),
+                                tmp_dir=tempdir(),
+                                method_type = c("Binding")){
   length <- match.arg(as.character(length),
                       choices = as.character(seq(11,30)),
                       several.ok=T)
   pre_method <- match.arg(pre_method)
+  method_type <- match.arg(method_type)
   res <- MHCbinding:::mhcbinding_client(client_path=client_path,peptide=peptide,
                                         allele=allele,length=length,pre_method=pre_method,tmp_dir=tmp_dir,
-                                        mhc_type = "II")
+                                        mhc_type = "II",method_type=method_type)
   return(res)
 }

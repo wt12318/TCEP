@@ -4,10 +4,16 @@
 \alias{available_alleles}
 \title{Show available alleles for MHC-I or MHC-II and corresponding methods.}
 \usage{
-available_alleles(pre_type = c("MHC-I", "MHC-II"), pre_method)
+available_alleles(
+  pre_type = c("Binding", "Processing", "Immuno"),
+  HLA_type = c("I", "II"),
+  pre_method
+)
 }
 \arguments{
-\item{pre_type}{Character, which MHC type need to be predicted, can be MHC-I or MHC-II}
+\item{pre_type}{Character, what kind of method to use, could be "Binging", "Processing", or "Immuno"}
+
+\item{HLA_type, }{Character, HLA type need to be predicted, can be I or II (Processing and Immuno can only be I).}
 
 \item{pre_method}{Character, which method to used for predicting MHC-peptide binding. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}}
 }

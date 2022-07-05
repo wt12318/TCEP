@@ -2,7 +2,7 @@
 % Please edit documentation in R/mhcIbinding_client.R
 \name{mhcbinding_client}
 \alias{mhcbinding_client}
-\title{Predicting MHC peptide binding}
+\title{Predicting HLA peptide binding}
 \usage{
 mhcbinding_client(
   client_path,
@@ -11,7 +11,7 @@ mhcbinding_client(
   length,
   pre_method,
   tmp_dir,
-  mhc_type
+  hla_type
 )
 }
 \arguments{
@@ -25,7 +25,7 @@ mhcbinding_client(
 
 \item{tmp_dir}{Character, the temp dir}
 
-\item{mhc_type}{MHC type, I or II}
+\item{hla_type}{HLA type, I or II}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).

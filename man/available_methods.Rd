@@ -2,21 +2,19 @@
 % Please edit documentation in R/available_methods.R
 \name{available_methods}
 \alias{available_methods}
-\title{Show available prediction methods for MHC-I or MHC-II}
+\title{Show available prediction methods for HLA-antigen binding, antigen processing or Immunogenicity.}
 \usage{
 available_methods(pre_type = c("Binding", "Processing", "Immuno"))
 }
 \arguments{
-\item{pre_type}{Character, which MHC type need to be predicted, can be MHC-I or MHC-II}
-
-\item{get_methods}{Character, which method to used for predicting MHC-peptide binding, can be api, refering to IEDB API and client, refering to local client}
+\item{pre_type}{Character, which kind of predicted method, could be Binding, Processing, or Immuno}
 }
 \value{
 A dataframe (tibble) contains two columns of method and corresponding version.
 }
 \description{
-Show available prediction methods for MHC-I or MHC-II
+Show available prediction methods for HLA-antigen binding, antigen processing or Immunogenicity.
 }
 \examples{
-available_methods("MHC-I","Binding")
+available_methods("Binding")
 }
