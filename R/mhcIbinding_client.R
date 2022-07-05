@@ -1,3 +1,25 @@
+
+#' Sliding peptide sequence
+#'
+#' @param pep_seq, Character vector, peptide sequence
+#' @param req_len, numberic, the length of resulting sub-sequence
+#'
+#' @return Character vector of sub-sequence
+#' @export
+#'
+#' @examples split_pep(c("GHAHKVPRRLLKAA", "SLYNTVATLY"),8)
+split_pep <- function(pep_seq, req_len){
+  req_len <- req_len - 1
+  pep_res <- sapply(pep_seq,
+                    function(x){
+                      t <- sapply(c(1:nchar(x)),
+                                  function(y){if (nchar(x)-8 < y){NA} else{substr(x,y,y+req_len)}})
+                      t <- t[!is.na(t)]
+                    },simplify = TRUE)
+  pep_res <- pep_res %>% unlist() %>% unname()
+  return(pep_res)
+}
+
 #' @title Predicting HLA peptide binding
 #'
 #' @description  This is the wrapped function for IEDB commond tools.
@@ -36,6 +58,9 @@ mhcbinding_client <- function(client_path,
     for (j in seq_along(length)){
       if (hla_type == "I"){
         available_length <- available_len(pre_method,allele[i])
+        if (pre_method == c("mhcflurry","mhcnuggets")){
+          available_length <- c(5:15)
+        }
       }else{
         available_length <- c(11:30)
       }
@@ -44,12 +69,14 @@ mhcbinding_client <- function(client_path,
       }
 
       ## 如果有一个序列小于指定的长度就会报错，因此去掉小于指定长度的序列
-      if (length[j] < min_len){
-        temp_list <- as.list(peptide)
-        names(temp_list) <- paste0("seq",c(1:length(peptide)))
-        seqinr::write.fasta(temp_list,names = names(temp_list),file.out = paste0(temp_dir,"/a"))
+      ship_lines <- 0
+      filter_pep <- peptide[which(input_len >= length[j])]
+      if (pre_method == "mhcflurry"){
+        pep_res <- split_pep(filter_pep,req_len = length[j])
+        pep_res <- data.frame(peptide=pep_res,allele=allele[i])
+        write.csv(pep_res,file = paste0(temp_dir,"/a"))
       }else{
-        temp_list <- as.list(peptide[which(input_len >= length[j])])
+        temp_list <- as.list(filter_pep)
         names(temp_list) <- paste0("seq",c(1:length(temp_list)))
         seqinr::write.fasta(temp_list,names = names(temp_list),file.out = paste0(temp_dir,"/a"))
       }
@@ -67,6 +94,10 @@ mhcbinding_client <- function(client_path,
         }else{
           if (pre_method %in% c("mhcflurry","mhcnuggets")){
             ##TODO add two method
+            if (pre_method == "mhcflurry"){
+              command_run <- paste0("conda run -n mhcflurry-env mhcflurry-predict ",
+                                    paste0(temp_dir,"/a"), " > ",paste0(temp_dir,"/b"))
+            }
           }else{
             command_run <- paste0(client_path,'predict_binding.py ',pre_method," ",allele[i]," ",length[j]," ",paste0(temp_dir,"/a"),
                                   ' > ',paste0(temp_dir,"/b"))
@@ -95,7 +126,11 @@ mhcbinding_client <- function(client_path,
 
       cat("Predicting using ",pre_method,"\n")
       mess <- system(command_run)
-      tmp <- read.table(paste0(temp_dir,"/b"),header = T)
+      if (pre_method == "mhcflurry"){
+        tmp <- read.table(paste0(temp_dir,"/b"),header = T,skip = 4,sep = ",")
+      }else{
+        tmp <- read.table(paste0(temp_dir,"/b"),header = T)
+      }
       if (pre_method == "consensus"){
         suppressWarnings(tmp <- tmp %>% mutate(across(7:13,as.numeric)))
       }

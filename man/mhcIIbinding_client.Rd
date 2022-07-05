@@ -10,8 +10,9 @@ mhcIIbinding_client(
   allele = c("DRB1*15:01", "DPB1*04:01"),
   length = c(14, 15),
   pre_method = c("comblib", "consensus3", "IEDB_recommended", "netmhciipan_el",
-    "netmhciipan_ba", "nn_align", "smm_align", "sturniolo"),
-  tmp_dir = tempdir()
+    "netmhciipan_ba", "nn_align", "smm_align", "sturniolo", "mhcnuggets"),
+  tmp_dir = tempdir(),
+  method_type = c("Binding")
 )
 }
 \arguments{
@@ -24,6 +25,8 @@ mhcIIbinding_client(
 \item{pre_method}{Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}}
 
 \item{tmp_dir}{Character, the temp dir}
+
+\item{method_type, }{which type prediction method used, for HLA-II , it can only be "Binding".}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).

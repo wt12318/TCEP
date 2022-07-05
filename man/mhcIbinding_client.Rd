@@ -11,20 +11,24 @@ mhcIbinding_client(
   length,
   pre_method = c("ann", "comblib_sidney2008", "consensus", "netmhccons",
     "netmhcpan_ba", "netmhcpan_el", "netmhcstabpan", "pickpocket", "IEDB_recommended",
-    "smm", "smmpmbec"),
-  tmp_dir = tempdir()
+    "smm", "smmpmbec", "mhcflurry", "mhcnuggets", "IEDB", "PRIME2.0", "DeepImmuno",
+    "Seq2Neo-CNN", "Netchop", "NetCTLpan"),
+  tmp_dir = tempdir(),
+  method_type = c("Binding", "Processing", "Immuno")
 )
 }
 \arguments{
 \item{peptide}{A character vector of input protein sequence.}
 
-\item{allele}{A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}.}
+\item{allele}{A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}. For \code{Netchop}, allele is not needed.}
 
 \item{length}{A numeric or character vector, indicating the length for which to make predictions. For MHC-I, the length can be 8-14}
 
 \item{pre_method}{Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}}
 
 \item{tmp_dir}{Character, the temp dir}
+
+\item{method_type, }{which type prediction method used, could be "Binding", "Processing" or "Immuno"}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).

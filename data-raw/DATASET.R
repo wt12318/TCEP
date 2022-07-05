@@ -162,7 +162,9 @@ names(res_cols) <- c("smmpmbec","smm","IEDB_recommended","pickpocket",
                      "netmhcstabpan","netmhcpan_el","netmhcpan_ba","netmhccons",
                      "comblib_sidney2008","ann","consensus")
 usethis::use_data(res_cols)
-
+load("~/MHCbinding/data/res_cols.rda")
+res_cols["mhcflurry"][[1]] <- colnames(tmp)[3:7]
+usethis::use_data(res_cols, overwrite = TRUE)
 ##MHC-II
 method <- available_methods("client","MHC-II")
 pre_method <- method[8]

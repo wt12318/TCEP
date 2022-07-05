@@ -7,11 +7,12 @@
 mhcbinding_client(
   client_path,
   peptide,
-  allele,
+  allele = NULL,
   length,
   pre_method,
   tmp_dir,
-  hla_type
+  hla_type,
+  method_type
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ mhcbinding_client(
 \item{tmp_dir}{Character, the temp dir}
 
 \item{hla_type}{HLA type, I or II}
+
+\item{method_type, }{which type prediction method used, could be "Binding", "Processing" or "Immuno"}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).
