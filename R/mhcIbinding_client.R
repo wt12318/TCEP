@@ -13,10 +13,24 @@ split_pep <- function(pep_seq, req_len){
   pep_res <- sapply(pep_seq,
                     function(x){
                       t <- sapply(c(1:nchar(x)),
-                                  function(y){if (nchar(x)-8 < y){NA} else{substr(x,y,y+req_len)}})
+                                  function(y){
+                                    if (nchar(x)-8 < y){
+                                      NA
+                                      }else{
+                                        substr(x,y,y+req_len)
+                                        }
+                                    })
                       t <- t[!is.na(t)]
                     },simplify = TRUE)
-  pep_res <- pep_res %>% unlist() %>% unname()
+  pep_res <- data.frame(
+    seq_num = rep((1:length(pep_seq)),times=lengths(pep_res)),
+    peptide = pep_res %>% unlist() %>% unname()
+  )
+  pep_res$length <- nchar(pep_res$peptide)
+  pep_res <- pep_res %>%
+    group_by(seq_num) %>% mutate(start=row_number()) %>%
+    ungroup() %>%
+    mutate(end = start + req_len)
   return(pep_res)
 }
 
@@ -30,13 +44,15 @@ split_pep <- function(pep_seq, req_len){
 #' @param tmp_dir Character, the temp dir
 #' @param hla_type HLA type, I or II
 #' @param method_type, which type prediction method used, could be "Binding", "Processing" or "Immuno"
+#' @param mhcflurry_type, is calculating wt peptide for mhcflurry
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 
 mhcbinding_client <- function(client_path,
                               peptide,
                               allele=NULL,
                               length,
-                              pre_method,tmp_dir,hla_type,method_type){
+                              pre_method,tmp_dir,hla_type,
+                              method_type,mhcflurry_type="mt"){
   input_len <- nchar(peptide)
   max_len <- max(input_len)
   min_len <- min(input_len)
@@ -58,7 +74,7 @@ mhcbinding_client <- function(client_path,
     for (j in seq_along(length)){
       if (hla_type == "I"){
         available_length <- available_len(pre_method,allele[i])
-        if (pre_method == c("mhcflurry","mhcnuggets")){
+        if (pre_method %in% c("mhcflurry","mhcnuggets")){
           available_length <- c(5:15)
         }
       }else{
@@ -72,8 +88,13 @@ mhcbinding_client <- function(client_path,
       ship_lines <- 0
       filter_pep <- peptide[which(input_len >= length[j])]
       if (pre_method == "mhcflurry"){
-        pep_res <- split_pep(filter_pep,req_len = length[j])
-        pep_res <- data.frame(peptide=pep_res,allele=allele[i])
+        if (mhcflurry_type == "wt"){
+          pep_res <- data.frame(peptide = filter_pep)
+          pep_res$allele <- allele[i]
+        }else{
+          pep_res <- split_pep(filter_pep,req_len = length[j])
+          pep_res$allele <- allele[i]##add seq_num and length
+        }
         write.csv(pep_res,file = paste0(temp_dir,"/a"))
       }else{
         temp_list <- as.list(filter_pep)
@@ -93,7 +114,7 @@ mhcbinding_client <- function(client_path,
           }
         }else{
           if (pre_method %in% c("mhcflurry","mhcnuggets")){
-            ##TODO add two method
+            ##TODO add mhcnuggets method
             if (pre_method == "mhcflurry"){
               command_run <- paste0("conda run -n mhcflurry-env mhcflurry-predict ",
                                     paste0(temp_dir,"/a"), " > ",paste0(temp_dir,"/b"))
@@ -184,15 +205,23 @@ mhcIbinding_client <- function(client_path,
                                               "IEDB","PRIME2.0","DeepImmuno",
                                               "Seq2Neo-CNN","Netchop","NetCTLpan"),
                                tmp_dir=tempdir(),
-                               method_type = c("Binding","Processing","Immuno")){
-  length <- match.arg(as.character(length),
-                      choices = available_len(pre_method,allele),
-                      several.ok=T)
+                               method_type = c("Binding","Processing","Immuno"),
+                               mhcflurry_type="mt"){
+  if (pre_method %in% c("mhcflurry","mhcnuggets")){
+    length <- match.arg(as.character(length),
+                        choices = c(5:15),
+                        several.ok=T)
+  }else{
+    length <- match.arg(as.character(length),
+                        choices = available_len(pre_method,allele),
+                        several.ok=T)
+  }
   pre_method <- match.arg(pre_method)
   method_type <- match.arg(method_type)
   res <- MHCbinding:::mhcbinding_client(client_path=client_path,peptide=peptide,
                                         allele=allele,length=length,pre_method=pre_method,tmp_dir=tmp_dir,
-                                        mhc_type = "I",method_type=method_type)
+                                        hla_type = "I",
+                                        method_type=method_type,mhcflurry_type=mhcflurry_type)
   return(res)
 }
 
@@ -230,6 +259,6 @@ mhcIIbinding_client <- function(client_path,
   method_type <- match.arg(method_type)
   res <- MHCbinding:::mhcbinding_client(client_path=client_path,peptide=peptide,
                                         allele=allele,length=length,pre_method=pre_method,tmp_dir=tmp_dir,
-                                        mhc_type = "II",method_type=method_type)
+                                        hla_type  = "II",method_type=method_type)
   return(res)
 }

@@ -11,15 +11,15 @@ general_mhcbinding(
   allele,
   length,
   pre_method,
-  tmp_dir
+  tmp_dir,
+  method_type,
+  mhcflurry_type = "mt"
 )
 }
 \arguments{
 \item{hla_type}{HLA class}
 
 \item{client_path}{The path of local IEDB tools, used when setting get_method as client}
-
-\item{get_method}{The way to predict, can be api or client}
 
 \item{...}{Other para passed to mhcIbing or mhcIIbind}
 }

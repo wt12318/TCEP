@@ -5,35 +5,35 @@
 \title{Predict peptide MHC binding based on TXT file.}
 \usage{
 txt2binding(
-  get_method = c("api", "client"),
   annovar_path,
   txt_path,
   genome_version = c("hg19", "hg38", "mm10", "mm9"),
-  mhc_type,
+  hla_type,
   pep_length,
   allele,
   pre_method,
+  method_type,
   client_path,
   tmp_dir,
   num_thread
 )
 }
 \arguments{
-\item{get_method}{The way to predict, can be api or client.}
-
 \item{annovar_path}{Character, the install path of annovar.}
 
 \item{txt_path}{Character, the path of TXT file needed to be converted.}
 
 \item{genome_version}{Character, which genome build version of the VCF file, can be hg19 or hg38}
 
-\item{mhc_type}{MHC class, can be MHC-I or MHC-II.}
+\item{hla_type}{HLA class, can be I or II.}
 
 \item{pep_length}{A numeric or character vector, indicating the length for which to make predictions. For MHC-I, the length can be 8-15, for MHC-II, the length can be 11-30 or asis (take the length of input sequence as the peptide length)}
 
 \item{allele}{A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}}
 
-\item{pre_method}{Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}}
+\item{pre_method}{Character, indicating the prediction method. Available methods for HLA-I or HLA-II can be obtained by \code{\link{available_methods}}}
+
+\item{method_type, }{which type prediction method used, could be "Binding", "Processing" or "Immuno"}
 
 \item{client_path}{The path of local IEDB tools, used when setting get_method as client}
 
@@ -48,7 +48,8 @@ A dataframe contains the predicted IC50 and precentile rank (if available).
 This function use \code{\link{txt2seq}} to exacted mutated "new peptide" from TXT file, and predicted the binding affinity of these peptide with specific MHC allele using \code{\link{general_mhcbinding}}
 }
 \examples{
-test <- txt2binding(get_method="api",annovar_path = "~/software/annovar/",txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
-                    genome_version = "hg19",mhc_type = "MHC-I",pep_length = c(9,10),
-                    allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",tmp_dir=tempdir(),num_thread=1)
+test <- txt2binding(annovar_path = "~/software/annovar/",txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
+                    genome_version = "hg19",hla_type = "I",pep_length = c(9,10),
+                    allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",method_type="Binding"
+                    tmp_dir=tempdir(),num_thread=1,client_path="~/software/mhc_i/src/")
 }

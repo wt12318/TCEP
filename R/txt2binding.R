@@ -110,14 +110,14 @@ txt2seq <- function(annovar_path,txt_path,
 #' Predict peptide MHC binding based on TXT file.
 #'
 #' @description This function use \code{\link{txt2seq}} to exacted mutated "new peptide" from TXT file, and predicted the binding affinity of these peptide with specific MHC allele using \code{\link{general_mhcbinding}}
-#' @param get_method The way to predict, can be api or client.
 #' @param annovar_path Character, the install path of annovar.
 #' @param txt_path Character, the path of TXT file needed to be converted.
 #' @param genome_version Character, which genome build version of the VCF file, can be hg19 or hg38
-#' @param mhc_type MHC class, can be MHC-I or MHC-II.
+#' @param hla_type HLA class, can be I or II.
 #' @param pep_length A numeric or character vector, indicating the length for which to make predictions. For MHC-I, the length can be 8-15, for MHC-II, the length can be 11-30 or asis (take the length of input sequence as the peptide length)
 #' @param allele A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}
-#' @param pre_method Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
+#' @param pre_method Character, indicating the prediction method. Available methods for HLA-I or HLA-II can be obtained by \code{\link{available_methods}}
+#' @param method_type, which type prediction method used, could be "Binding", "Processing" or "Immuno"
 #' @param client_path The path of local IEDB tools, used when setting get_method as client
 #' @param tmp_dir Character, the temp dir
 #' @param num_thread specify the number of threads to be used in annotation
@@ -125,21 +125,22 @@ txt2seq <- function(annovar_path,txt_path,
 #' @export
 #'
 #' @examples
-#' test <- txt2binding(get_method="api",annovar_path = "~/software/annovar/",txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
-#'                     genome_version = "hg19",mhc_type = "MHC-I",pep_length = c(9,10),
-#'                     allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",tmp_dir=tempdir(),num_thread=1)
-txt2binding <- function(get_method=c("api","client"),annovar_path,txt_path,
-                        genome_version=c("hg19","hg38","mm10","mm9"),mhc_type,pep_length,allele,
-                        pre_method,client_path,tmp_dir,num_thread){
+#' test <- txt2binding(annovar_path = "~/software/annovar/",txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
+#'                     genome_version = "hg19",hla_type = "I",pep_length = c(9,10),
+#'                     allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",method_type="Binding"
+#'                     tmp_dir=tempdir(),num_thread=1,client_path="~/software/mhc_i/src/")
+txt2binding <- function(annovar_path,txt_path,
+                        genome_version=c("hg19","hg38","mm10","mm9"),hla_type,pep_length,allele,
+                        pre_method,method_type,client_path,tmp_dir,num_thread){
 
   if (! dir.exists(tmp_dir)){
     dir.create(tmp_dir,recursive = TRUE)
   }
-  get_method <- match.arg(get_method)
   res <- vector("list",length = length(pep_length))
   names(res) <- pep_length
   for (i in seq_along(res)){
-    res[[i]] <- txt2seq(annovar_path = annovar_path,txt_path = txt_path,genome_version = genome_version,
+    res[[i]] <- txt2seq(annovar_path = annovar_path,txt_path = txt_path,
+                        genome_version = genome_version,
                         len = pep_length[i],tmp_dir=tmp_dir,num_thread=num_thread)
   }
   res <- dplyr::bind_rows(res,.id = "predicted_length")
@@ -158,22 +159,16 @@ txt2binding <- function(get_method=c("api","client"),annovar_path,txt_path,
 
     pep_length <- unique(res$predicted_length)
     pre_res_mt <- vector("list",length = length(pep_length))
-    pre_res_wt <- vector("list",length = length(pep_length))
     names(pre_res_mt) <- pep_length
-    names(pre_res_wt) <- pep_length
     for (i in seq_along(pre_res_mt)){
       pep_mt <- res[res$predicted_length == names(pre_res_mt)[i],"ext_seqs_mt"]
-      pre_res_mt[[i]] <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type = mhc_type, length = pep_length[i],
-                                                         allele = allele,pre_method = pre_method, peptide = pep_mt$ext_seqs_mt,client_path = client_path,
-                                                         tmp_dir=tmp_dir)
-      pep_wt <- res[res$predicted_length == names(pre_res_wt)[i],"ext_seqs_wt"]
-      pre_res_wt[[i]] <- MHCbinding:::general_mhcbinding(get_method = get_method,mhc_type = mhc_type, length = pep_length[i],
-                                                         allele = allele,pre_method = pre_method, peptide = pep_wt$ext_seqs_wt,client_path = client_path,
-                                                         tmp_dir=tmp_dir)
+      pre_res_mt[[i]] <- MHCbinding:::general_mhcbinding(hla_type = hla_type, length = names(pre_res_mt)[i],
+                                                         allele = allele,pre_method = pre_method,method_type=method_type,
+                                                         peptide = pep_mt$ext_seqs_mt,client_path = client_path,
+                                                         tmp_dir=tmp_dir,mhcflurry_type="mt")
     }
 
     pre_res_mt <- dplyr::bind_rows(pre_res_mt)
-    pre_res_wt <- dplyr::bind_rows(pre_res_wt)
 
     res <- res %>%
       dplyr::group_by(predicted_length) %>%
@@ -190,7 +185,22 @@ txt2binding <- function(get_method=c("api","client"),annovar_path,txt_path,
                     ext_seqs_mt,ext_seqs_wt,pos_alter,cdna,transcript,everything())
     pre_res_mt$peptide_wt <- substr(pre_res_mt$ext_seqs_wt,pre_res_mt$pep_start,pre_res_mt$pep_end)
 
-    if (mhc_type == "MHC-I"){
+    pre_res_wt <- vector("list",length = length(unique(pre_res_mt$length)))
+    names(pre_res_wt) <- unique(pre_res_mt$length)
+    for (i in seq_along(pre_res_wt)){
+      wt_pep_dt <- pre_res_mt %>%
+        filter(length == names(pre_res_wt)[i])
+      pre_res_wt[[i]] <- MHCbinding:::general_mhcbinding(hla_type = hla_type, length = names(pre_res_wt)[i],
+                                                         allele = unique(wt_pep_dt$allele),
+                                                         pre_method = pre_method,
+                                                         peptide = unique(wt_pep_dt$peptide_wt),
+                                                         client_path = client_path,
+                                                         method_type=method_type,
+                                                         tmp_dir=tmp_dir,mhcflurry_type="wt")
+    }
+    pre_res_wt <- bind_rows(pre_res_wt)
+
+    if (hla_type == "I"){
       pre_res_wt <- pre_res_wt %>%
         dplyr::select(allele,peptide,res_cols[pre_method][[1]]) %>%
         dplyr::distinct_all(.keep_all = T) %>%

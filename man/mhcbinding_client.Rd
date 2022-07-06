@@ -12,7 +12,8 @@ mhcbinding_client(
   pre_method,
   tmp_dir,
   hla_type,
-  method_type
+  method_type,
+  mhcflurry_type = "mt"
 )
 }
 \arguments{
@@ -29,6 +30,8 @@ mhcbinding_client(
 \item{hla_type}{HLA type, I or II}
 
 \item{method_type, }{which type prediction method used, could be "Binding", "Processing" or "Immuno"}
+
+\item{mhcflurry_type, }{is calculating wt peptide for mhcflurry}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).

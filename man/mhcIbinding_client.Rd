@@ -14,7 +14,8 @@ mhcIbinding_client(
     "smm", "smmpmbec", "mhcflurry", "mhcnuggets", "IEDB", "PRIME2.0", "DeepImmuno",
     "Seq2Neo-CNN", "Netchop", "NetCTLpan"),
   tmp_dir = tempdir(),
-  method_type = c("Binding", "Processing", "Immuno")
+  method_type = c("Binding", "Processing", "Immuno"),
+  mhcflurry_type = "mt"
 )
 }
 \arguments{
