@@ -14,7 +14,7 @@ split_pep <- function(pep_seq, req_len){
                     function(x){
                       t <- sapply(c(1:nchar(x)),
                                   function(y){
-                                    if (nchar(x)-8 < y){
+                                    if (nchar(x)-req_len < y){
                                       NA
                                       }else{
                                         substr(x,y,y+req_len)
@@ -32,6 +32,37 @@ split_pep <- function(pep_seq, req_len){
     ungroup() %>%
     mutate(end = start + req_len)
   return(pep_res)
+}
+
+#' Predict proteasomal processing using NetChop
+#'
+#' @param pep, character vector of peptide sequence
+#' @param temp_dir, temp dir
+#' @param netchop_path, installed IEDB Netchop path
+#'
+#' @return Dataframe containing 3 column: "amino_acid", "prediction_score", "sequence_id"
+#' @export
+#'
+#' @examples netchop_processing(c("GHAHKVPRRLLKAA","SLYNTVATLY"),"~/tmp/","~/software/netchop/")
+netchop_processing <- function(pep,temp_dir,netchop_path){
+  temp_list <- as.list(pep)
+  names(temp_list) <- paste0("seq",c(1:length(temp_list)))
+
+  t <- lapply(temp_list,function(x){
+    seqinr::write.fasta(x,names = attributes(x)$name,
+                        file.out = paste0(temp_dir,"/a.",attributes(x)$name))})
+  command_run <- sapply(names(temp_list),function(x){
+    paste0(netchop_path, "predict.py --method netchop ",
+           paste0(temp_dir,"/a.",x)," -n > ",paste0(temp_dir,"/b.",x))
+  })
+
+  tmp <- lapply(names(temp_list),function(x){
+    read.table(paste0(temp_dir,"/b.",x),skip = 1)
+  }) %>%
+    bind_rows() %>%
+    select(-V1)
+  colnames(tmp) <- c("amino_acid", "prediction_score", "sequence_id")
+  return(tmp)
 }
 
 #' @title Predicting HLA peptide binding
@@ -52,7 +83,9 @@ mhcbinding_client <- function(client_path,
                               allele=NULL,
                               length,
                               pre_method,tmp_dir,hla_type,
-                              method_type,mhcflurry_type="mt"){
+                              method_type,
+                              mhcflurry_type="mt",
+                              mhcflurry_env="mhcflurry-env",mhcnuggets_env="mhcnuggets"){
   input_len <- nchar(peptide)
   max_len <- max(input_len)
   min_len <- min(input_len)
@@ -87,15 +120,21 @@ mhcbinding_client <- function(client_path,
       ## 如果有一个序列小于指定的长度就会报错，因此去掉小于指定长度的序列
       ship_lines <- 0
       filter_pep <- peptide[which(input_len >= length[j])]
-      if (pre_method == "mhcflurry"){
-        if (mhcflurry_type == "wt"){
-          pep_res <- data.frame(peptide = filter_pep)
-          pep_res$allele <- allele[i]
+      if (pre_method %in% c("mhcflurry","mhcnuggets")){
+        if (pre_method == "mhcflurry"){
+          if (mhcflurry_type == "wt"){
+            pep_res <- data.frame(peptide = filter_pep)
+            pep_res$allele <- allele[i]
+          }else{
+            pep_res <- split_pep(filter_pep,req_len = length[j])
+            pep_res$allele <- allele[i]##add seq_num and length
+          }
+          write.csv(pep_res,file = paste0(temp_dir,"/a"))
         }else{
-          pep_res <- split_pep(filter_pep,req_len = length[j])
-          pep_res$allele <- allele[i]##add seq_num and length
+          pep_res <- data.frame(peptide = filter_pep)
+          write.table(pep_res,file = paste0(temp_dir,"/a"),sep = "\t",col.names = F,row.names = F,quote = F)
         }
-        write.csv(pep_res,file = paste0(temp_dir,"/a"))
+
       }else{
         temp_list <- as.list(filter_pep)
         names(temp_list) <- paste0("seq",c(1:length(temp_list)))
@@ -116,8 +155,11 @@ mhcbinding_client <- function(client_path,
           if (pre_method %in% c("mhcflurry","mhcnuggets")){
             ##TODO add mhcnuggets method
             if (pre_method == "mhcflurry"){
-              command_run <- paste0("conda run -n mhcflurry-env mhcflurry-predict ",
+              command_run <- paste0(paste0("conda run -n ",mhcflurry_env," mhcflurry-predict "),
                                     paste0(temp_dir,"/a"), " > ",paste0(temp_dir,"/b"))
+            }
+            if (pre_method == "mhcnuggets"){
+
             }
           }else{
             command_run <- paste0(client_path,'predict_binding.py ',pre_method," ",allele[i]," ",length[j]," ",paste0(temp_dir,"/a"),
@@ -127,7 +169,8 @@ mhcbinding_client <- function(client_path,
       }
 
       if (method_type == "Processing"){
-        ##TODO add netchop and netctlpan
+        ##TODO add netctlpan
+        }
       }
 
       if (method_type == "Immuno"){
@@ -146,10 +189,18 @@ mhcbinding_client <- function(client_path,
       }
 
       cat("Predicting using ",pre_method,"\n")
-      mess <- system(command_run)
+
+      if (pre_method == "Netchop"){
+        for (i in 1:length(command_run)){
+          mess <- system(command_run[i])
+        }
+      }else{
+        mess <- system(command_run)
+      }
+
       if (pre_method == "mhcflurry"){
         tmp <- read.table(paste0(temp_dir,"/b"),header = T,skip = 4,sep = ",")
-      }else{
+      }else {
         tmp <- read.table(paste0(temp_dir,"/b"),header = T)
       }
       if (pre_method == "consensus"){
@@ -158,7 +209,7 @@ mhcbinding_client <- function(client_path,
       res[[k]] <- tmp
       k <- k + 1
     }
-  }
+
 
   if(file.exists(paste0(temp_dir,"/a"))){
     file.remove(paste0(temp_dir,"/a"))

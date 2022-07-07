@@ -13,7 +13,8 @@ mhcbinding_client(
   tmp_dir,
   hla_type,
   method_type,
-  mhcflurry_type = "mt"
+  mhcflurry_type = "mt",
+  mhcflurry_env = "mhcflurry-env"
 )
 }
 \arguments{
