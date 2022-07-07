@@ -15,7 +15,8 @@ mhcbinding_client(
   method_type,
   mhcflurry_type = "mt",
   mhcflurry_env = "mhcflurry-env",
-  mhcnuggets_env = "mhcnuggets"
+  mhcnuggets_env = "mhcnuggets",
+  netchop_path
 )
 }
 \arguments{
