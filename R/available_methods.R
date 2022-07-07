@@ -17,14 +17,14 @@ available_methods <- function(pre_type=c("Binding","Processing","Immuno")){
     print(dplyr::as_tibble(bind_rows(
       dt_mhci,
       data.frame(method = c("mhcflurry","mhcnuggets"),
-                 version = c("2.0.0","1.1"))
+                 version = c("2.0.0","2.3"))
     )))
     methods_mhci <- c(dt_mhci[,1],"mhcflurry","mhcnuggets")
 
     dt_mhcii <- data.frame(
       method = c("comblib", "consensus3", "IEDB_recommended", "netmhciipan_el",
                  "netmhciipan_ba","nn_align", "smm_align","sturniolo","mhcnuggets"),
-      version = c("1.0","2.22","2.22","4.0","4.0","2.3","1.1","1.0","1.1")
+      version = c("1.0","2.22","2.22","4.0","4.0","2.3","1.1","1.0","2.3")
     )
     cat(crayon::green("HLA-II antigen binding methods: ","\n"))
     print(dplyr::as_tibble(dt_mhcii))
