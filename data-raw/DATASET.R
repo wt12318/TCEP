@@ -146,7 +146,13 @@ res <- bind_rows(res)
 res <- res %>% filter(Species=="human")
 available_lens <- res
 usethis::use_data(available_lens)
-
+available_lens <- available_lens
+available_lens <- bind_rows(
+  available_lens,
+  data.frame(Species="human",MHC=NA,
+             PeptideLength=c(8:11),method="NetCTLpan")
+)
+usethis::use_data(available_lens,overwrite = TRUE)
 ###各种方法的列名
 #MHC-I
 smmpmbec <- c("ic50","rank")
@@ -170,6 +176,10 @@ usethis::use_data(res_cols)
 load("~/MHCbinding/data/res_cols.rda")
 res_cols["mhcflurry"][[1]] <- colnames(tmp)[3:7]
 res_cols["mhcnuggets"][[1]] <- "ic50"
+usethis::use_data(res_cols, overwrite = TRUE)
+
+res_cols <- res_cols
+res_cols["NetCTLpan"][[1]] <- colnames(tmp)[2:5]
 usethis::use_data(res_cols, overwrite = TRUE)
 ##MHC-II
 method <- available_methods("client","MHC-II")

@@ -17,7 +17,8 @@ mhcIbinding_client(
   method_type = c("Binding", "Processing", "Immuno"),
   mhcflurry_type = "mt",
   mhcflurry_env = "mhcflurry-env",
-  mhcnuggets_env = "mhcnuggets"
+  mhcnuggets_env = "mhcnuggets",
+  netchop_path = "~/software/netchop/"
 )
 }
 \arguments{

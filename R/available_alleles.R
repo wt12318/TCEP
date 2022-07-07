@@ -33,16 +33,20 @@ available_alleles <- function(pre_type = c("Binding","Processing","Immuno"),
     pre_method <- match.arg(pre_method,
                             choices = c("Netchop","NetCTLpan"))
     if (HLA_type == "II"){
-      cat(crayon::red("NetCTLpan only for HLA-I","\n"))
+      cat(crayon::red("NetCTLpan only for HLA-I !","\n"))
+      return(invisible(NULL))
+    }else{
+      alleles <- NetCTLpan_alleles$Allele
     }
-    alleles <- NetCTLpan_alleles$Allele
   }else {
     pre_method <- match.arg(pre_method,
                             choices = c("IEDB","PRIME2.0","DeepImmuno","Seq2Neo-CNN"))
     if (HLA_type == "II"){
       cat(crayon::red("Immuno only for HLA-I","\n"))
+      return(invisible(NULL))
+    }else{
+      alleles <- immuno_alleles$alleles[immuno_alleles$methods==pre_method]
     }
-    alleles <- immuno_alleles$alleles[immuno_alleles$methods==pre_method]
   }
   return(alleles)
 }

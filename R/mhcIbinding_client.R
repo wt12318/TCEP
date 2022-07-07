@@ -48,14 +48,16 @@ netchop_processing <- function(pep,temp_dir,netchop_path){
   temp_list <- as.list(pep)
   names(temp_list) <- paste0("seq",c(1:length(temp_list)))
 
-  t <- lapply(temp_list,function(x){
-    seqinr::write.fasta(x,names = attributes(x)$name,
-                        file.out = paste0(temp_dir,"/a.",attributes(x)$name))})
+  t <- mapply(function(x,y){
+    seqinr::write.fasta(x,names = y,
+                        file.out = paste0(temp_dir,"/a.",y))
+  },temp_list,names(temp_list))
   command_run <- sapply(names(temp_list),function(x){
     paste0(netchop_path, "predict.py --method netchop ",
            paste0(temp_dir,"/a.",x)," -n > ",paste0(temp_dir,"/b.",x))
   })
-
+  ##run
+  mess <- lapply(command_run,function(x){system(x)})
   tmp <- lapply(names(temp_list),function(x){
     read.table(paste0(temp_dir,"/b.",x),skip = 1)
   }) %>%
@@ -85,7 +87,8 @@ mhcbinding_client <- function(client_path,
                               pre_method,tmp_dir,hla_type,
                               method_type,
                               mhcflurry_type="mt",
-                              mhcflurry_env="mhcflurry-env",mhcnuggets_env="mhcnuggets"){
+                              mhcflurry_env="mhcflurry-env",
+                              mhcnuggets_env="mhcnuggets",netchop_path){
   input_len <- nchar(peptide)
   max_len <- max(input_len)
   min_len <- min(input_len)
@@ -110,6 +113,9 @@ mhcbinding_client <- function(client_path,
         if (pre_method %in% c("mhcflurry","mhcnuggets")){
           available_length <- c(5:15)
         }
+        if (pre_method == "NetCTLpan"){
+          available_length <- c(8:11)
+        }
       }else{
         available_length <- c(11:30)
       }
@@ -120,7 +126,7 @@ mhcbinding_client <- function(client_path,
       ## 如果有一个序列小于指定的长度就会报错，因此去掉小于指定长度的序列
       ship_lines <- 0
       filter_pep <- peptide[which(input_len >= length[j])]
-      if (pre_method %in% c("mhcflurry","mhcnuggets")){
+      if (pre_method %in% c("mhcflurry","mhcnuggets","NetCTLpan")){
         if (pre_method == "mhcflurry"){
           if (mhcflurry_type == "wt"){
             pep_res <- data.frame(peptide = filter_pep)
@@ -130,11 +136,23 @@ mhcbinding_client <- function(client_path,
             pep_res$allele <- allele[i]##add seq_num and length
           }
           write.csv(pep_res,file = paste0(temp_dir,"/a"))
-        }else{
+        }
+
+        if (pre_method == "mhcnuggets"){
           ##mhcnuggets
           pep_res <- split_pep(filter_pep,req_len = length[j])
           pep_res_pep <- data.frame(peptide = pep_res$peptide)
           write.table(pep_res_pep,file = paste0(temp_dir,"/a"),sep = "\t",col.names = F,row.names = F,quote = F)
+        }
+
+        if (pre_method == "NetCTLpan"){
+          temp_list <- as.list(filter_pep)
+          names(temp_list) <- paste0("seq",c(1:length(temp_list)))
+          pep_res <- split_pep(filter_pep,req_len = length[j])
+          t <- mapply(function(x,y){
+            seqinr::write.fasta(x,names = y,
+                                file.out = paste0(temp_dir,"/a.",y))
+          },temp_list,names(temp_list))
         }
 
       }else{
@@ -185,7 +203,12 @@ mhcbinding_client <- function(client_path,
       }
 
       if (method_type == "Processing"){
-        ##TODO add netctlpan
+        ##netctlpan only for HLA-I
+        command_run <- sapply(names(temp_list),function(x){
+          paste0(netchop_path,
+                 paste0("predict.py --method netctlpan -a ",allele[i]," -l ",length[j]," -n "),
+                 paste0(temp_dir,"/a.",x)," > ",paste0(temp_dir,"/b.",x))
+        })
         }
       }
 
@@ -206,8 +229,8 @@ mhcbinding_client <- function(client_path,
 
       cat("Predicting using ",pre_method,"\n")
 
-      if (pre_method == "Netchop"){
-        ##TODO
+      if (pre_method == "NetCTLpan"){
+        mess <- lapply(command_run,function(x){system(x)})
       }else{
         mess <- system(command_run)
       }
@@ -216,6 +239,15 @@ mhcbinding_client <- function(client_path,
         tmp <- read.table(paste0(temp_dir,"/b"),header = T,skip = 4,sep = ",")
       }else if(pre_method == "mhcnuggets"){
         tmp <- data.table::fread(paste0(temp_dir,"/b"),skip = "peptide,ic50",data.table = FALSE)
+        tmp <- left_join(tmp,pep_res)
+        tmp$allele <- allele[i]
+      }else if (pre_method == "NetCTLpan"){
+        tmp <- lapply(names(temp_list),function(x){
+          read.table(paste0(temp_dir,"/b.",x),skip = 1)
+        }) %>%
+          bind_rows() %>%
+          select(-V1)
+        colnames(tmp) <- c("peptide","mhc_pre","tap_pre","cleavage_pre","combined_score_%rank")
         tmp <- left_join(tmp,pep_res)
         tmp$allele <- allele[i]
       }else{
@@ -276,11 +308,18 @@ mhcIbinding_client <- function(client_path,
                                tmp_dir=tempdir(),
                                method_type = c("Binding","Processing","Immuno"),
                                mhcflurry_type="mt",
-                               mhcflurry_env="mhcflurry-env",mhcnuggets_env="mhcnuggets"){
-  if (pre_method %in% c("mhcflurry","mhcnuggets")){
-    length <- match.arg(as.character(length),
-                        choices = c(5:15),
-                        several.ok=T)
+                               mhcflurry_env="mhcflurry-env",mhcnuggets_env="mhcnuggets",
+                               netchop_path="~/software/netchop/"){
+  if (pre_method %in% c("mhcflurry","mhcnuggets","NetCTLpan")){
+    if (pre_method == "NetCTLpan"){
+      length <- match.arg(as.character(length),
+                          choices = c(8:11),
+                          several.ok=T)
+    }else{
+      length <- match.arg(as.character(length),
+                          choices = c(5:15),
+                          several.ok=T)
+    }
   }else{
     length <- match.arg(as.character(length),
                         choices = available_len(pre_method,allele),
@@ -292,7 +331,8 @@ mhcIbinding_client <- function(client_path,
                                         allele=allele,length=length,pre_method=pre_method,tmp_dir=tmp_dir,
                                         hla_type = "I",
                                         method_type=method_type,mhcflurry_type=mhcflurry_type,
-                                        mhcflurry_env=mhcflurry_env,mhcnuggets_env=mhcnuggets_env)
+                                        mhcflurry_env=mhcflurry_env,mhcnuggets_env=mhcnuggets_env,
+                                        netchop_path=netchop_path)
   return(res)
 }
 
