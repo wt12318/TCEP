@@ -14,18 +14,21 @@
 
 general_mhcbinding <- function(hla_type=c("I","II"),
                                client_path,peptide,allele,length,
-                               pre_method,tmp_dir,method_type,mhcflurry_type="mt"){
+                               pre_method,tmp_dir,method_type,mhcflurry_type="mt",
+                               mhcflurry_env="mhcflurry-env",mhcnuggets_env="mhcnuggets"){
   hla_type <- match.arg(hla_type)
   if (hla_type == "I"){
     res <- mhcIbinding_client(client_path=client_path,tmp_dir=tmp_dir,
                               peptide=peptide,allele =allele,
                               length =length,pre_method =pre_method,
-                              method_type = method_type,mhcflurry_type=mhcflurry_type)
+                              method_type = method_type,mhcflurry_type=mhcflurry_type,
+                              mhcflurry_env=mhcflurry_env,mhcnuggets_env=mhcnuggets_env)
   }else{
     res <- mhcIIbinding_client(client_path=client_path,tmp_dir=tmp_dir,
                                peptide=peptide,allele =allele,
                                length =length,pre_method =pre_method,
-                               method_type = method_type)
+                               method_type = method_type,
+                               mhcnuggets_env=mhcnuggets_env)
   }
   return(res)
 }

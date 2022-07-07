@@ -55,6 +55,9 @@ mhcIallele <- bind_rows(
              method = c(rep("mhcflurry",nrow(mhcflurry))))
 )
 usethis::use_data(mhcIallele,overwrite = T)
+
+mhcIallele <- mhcIallele
+mhcIallele$method[which(mhcIallele$method == "mhcnuggest")] <- "mhcnuggets"
 ###MHC-II
 for (i in mhcIIbinding_api_methods$method){
   i <- gsub(" \\(netmhcii\\)","",i)
@@ -122,6 +125,8 @@ mhcIIallele_client <- bind_rows(
              method = c(rep("mhcnuggest",nrow(mhcnuggest2))))
 )
 usethis::use_data(mhcIIallele_client,overwrite = T)
+mhcIIallele_client <- mhcIIallele_client
+mhcIIallele_client$method[which(mhcIIallele_client$method == "mhcnuggest")] <- "mhcnuggets"
 ###pep file
 dt <- random_peptides(len = 12,n=10)
 write.table(dt,file = "inst/extdata/random.pep",row.names = F,col.names = F,quote = F)
@@ -164,6 +169,7 @@ names(res_cols) <- c("smmpmbec","smm","IEDB_recommended","pickpocket",
 usethis::use_data(res_cols)
 load("~/MHCbinding/data/res_cols.rda")
 res_cols["mhcflurry"][[1]] <- colnames(tmp)[3:7]
+res_cols["mhcnuggets"][[1]] <- "ic50"
 usethis::use_data(res_cols, overwrite = TRUE)
 ##MHC-II
 method <- available_methods("client","MHC-II")
@@ -191,8 +197,9 @@ res_cols_ii <- list(comblib,consensus3,IEDB_recommended,netmhciipan_el,
                     netmhciipan_ba,nn_align,smm_align,sturniolo)
 names(res_cols_ii) <- c("comblib","consensus3","IEDB_recommended","netmhciipan_el",
                      "netmhciipan_ba","nn_align","smm_align","sturniolo")
-usethis::use_data(res_cols_ii)
-
+usethis::use_data(res_cols_ii,overwrite = TRUE)
+res_cols_ii <- res_cols_ii
+res_cols_ii["mhcnuggets"][[1]] <- "ic50"
 ###netChop alleles
 netChop_alleles <- readRDS("~/MHCbinding/data-raw/netChop_alleles.rds")
 colnames(netChop_alleles) <- "Allele"

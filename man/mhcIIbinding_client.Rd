@@ -12,7 +12,8 @@ mhcIIbinding_client(
   pre_method = c("comblib", "consensus3", "IEDB_recommended", "netmhciipan_el",
     "netmhciipan_ba", "nn_align", "smm_align", "sturniolo", "mhcnuggets"),
   tmp_dir = tempdir(),
-  method_type = c("Binding")
+  method_type = c("Binding"),
+  mhcnuggets_env = "mhcnuggets"
 )
 }
 \arguments{

@@ -15,7 +15,9 @@ mhcIbinding_client(
     "Seq2Neo-CNN", "Netchop", "NetCTLpan"),
   tmp_dir = tempdir(),
   method_type = c("Binding", "Processing", "Immuno"),
-  mhcflurry_type = "mt"
+  mhcflurry_type = "mt",
+  mhcflurry_env = "mhcflurry-env",
+  mhcnuggets_env = "mhcnuggets"
 )
 }
 \arguments{

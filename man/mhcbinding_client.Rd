@@ -14,7 +14,8 @@ mhcbinding_client(
   hla_type,
   method_type,
   mhcflurry_type = "mt",
-  mhcflurry_env = "mhcflurry-env"
+  mhcflurry_env = "mhcflurry-env",
+  mhcnuggets_env = "mhcnuggets"
 )
 }
 \arguments{

@@ -131,8 +131,10 @@ mhcbinding_client <- function(client_path,
           }
           write.csv(pep_res,file = paste0(temp_dir,"/a"))
         }else{
-          pep_res <- data.frame(peptide = filter_pep)
-          write.table(pep_res,file = paste0(temp_dir,"/a"),sep = "\t",col.names = F,row.names = F,quote = F)
+          ##mhcnuggets
+          pep_res <- split_pep(filter_pep,req_len = length[j])
+          pep_res_pep <- data.frame(peptide = pep_res$peptide)
+          write.table(pep_res_pep,file = paste0(temp_dir,"/a"),sep = "\t",col.names = F,row.names = F,quote = F)
         }
 
       }else{
@@ -146,7 +148,14 @@ mhcbinding_client <- function(client_path,
       if (method_type == "Binding"){
         if (hla_type == "II"){
           if (pre_method == "mhcnuggets"){
-            ##TODO add mhcnugges
+            system(paste0("touch ",temp_dir,"/pre.py"))
+            writeLines(paste0("from mhcnuggets.src.predict import predict\npredict(",
+                              paste0("class_='",hla_type,"',"),
+                              paste0("peptides_path='",normalizePath(temp_dir),"/a'",","),
+                              paste0("mhc='",allele[i],"')")),
+                       paste0(temp_dir,"/pre.py"))
+            command_run <- paste0(paste0("conda run -n ",mhcnuggets_env," python "),
+                                  paste0(temp_dir,"/pre.py")," > ",paste0(temp_dir,"/b"))
           }else{
             command_run <- paste0(client_path,'mhc_II_binding.py ',pre_method," ",allele[i]," ",paste0(temp_dir,"/a "),length[j]," ",
                                   ' > ',paste0(temp_dir,"/b"))
@@ -159,7 +168,14 @@ mhcbinding_client <- function(client_path,
                                     paste0(temp_dir,"/a"), " > ",paste0(temp_dir,"/b"))
             }
             if (pre_method == "mhcnuggets"){
-
+              system(paste0("touch ",temp_dir,"/pre.py"))
+              writeLines(paste0("from mhcnuggets.src.predict import predict\npredict(",
+                                paste0("class_='",hla_type,"',"),
+                                paste0("peptides_path='",normalizePath(temp_dir),"/a'",","),
+                                paste0("mhc='",allele[i],"')")),
+                         paste0(temp_dir,"/pre.py"))
+              command_run <- paste0(paste0("conda run -n ",mhcnuggets_env," python "),
+                                    paste0(temp_dir,"/pre.py")," > ",paste0(temp_dir,"/b"))
             }
           }else{
             command_run <- paste0(client_path,'predict_binding.py ',pre_method," ",allele[i]," ",length[j]," ",paste0(temp_dir,"/a"),
@@ -191,16 +207,18 @@ mhcbinding_client <- function(client_path,
       cat("Predicting using ",pre_method,"\n")
 
       if (pre_method == "Netchop"){
-        for (i in 1:length(command_run)){
-          mess <- system(command_run[i])
-        }
+        ##TODO
       }else{
         mess <- system(command_run)
       }
 
       if (pre_method == "mhcflurry"){
         tmp <- read.table(paste0(temp_dir,"/b"),header = T,skip = 4,sep = ",")
-      }else {
+      }else if(pre_method == "mhcnuggets"){
+        tmp <- data.table::fread(paste0(temp_dir,"/b"),skip = "peptide,ic50",data.table = FALSE)
+        tmp <- left_join(tmp,pep_res)
+        tmp$allele <- allele[i]
+      }else{
         tmp <- read.table(paste0(temp_dir,"/b"),header = T)
       }
       if (pre_method == "consensus"){
@@ -257,7 +275,8 @@ mhcIbinding_client <- function(client_path,
                                               "Seq2Neo-CNN","Netchop","NetCTLpan"),
                                tmp_dir=tempdir(),
                                method_type = c("Binding","Processing","Immuno"),
-                               mhcflurry_type="mt"){
+                               mhcflurry_type="mt",
+                               mhcflurry_env="mhcflurry-env",mhcnuggets_env="mhcnuggets"){
   if (pre_method %in% c("mhcflurry","mhcnuggets")){
     length <- match.arg(as.character(length),
                         choices = c(5:15),
@@ -272,7 +291,8 @@ mhcIbinding_client <- function(client_path,
   res <- MHCbinding:::mhcbinding_client(client_path=client_path,peptide=peptide,
                                         allele=allele,length=length,pre_method=pre_method,tmp_dir=tmp_dir,
                                         hla_type = "I",
-                                        method_type=method_type,mhcflurry_type=mhcflurry_type)
+                                        method_type=method_type,mhcflurry_type=mhcflurry_type,
+                                        mhcflurry_env=mhcflurry_env,mhcnuggets_env=mhcnuggets_env)
   return(res)
 }
 
@@ -302,7 +322,8 @@ mhcIIbinding_client <- function(client_path,
                                                "netmhciipan_ba","nn_align",
                                                "smm_align","sturniolo","mhcnuggets"),
                                 tmp_dir=tempdir(),
-                                method_type = c("Binding")){
+                                method_type = c("Binding"),
+                                mhcnuggets_env="mhcnuggets"){
   length <- match.arg(as.character(length),
                       choices = as.character(seq(11,30)),
                       several.ok=T)
@@ -310,6 +331,7 @@ mhcIIbinding_client <- function(client_path,
   method_type <- match.arg(method_type)
   res <- MHCbinding:::mhcbinding_client(client_path=client_path,peptide=peptide,
                                         allele=allele,length=length,pre_method=pre_method,tmp_dir=tmp_dir,
-                                        hla_type  = "II",method_type=method_type)
+                                        hla_type  = "II",method_type=method_type,
+                                        mhcnuggets_env=mhcnuggets_env)
   return(res)
 }

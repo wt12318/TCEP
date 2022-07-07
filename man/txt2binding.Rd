@@ -15,7 +15,9 @@ txt2binding(
   method_type,
   client_path,
   tmp_dir,
-  num_thread
+  num_thread,
+  mhcflurry_env = "mhcflurry-env",
+  mhcnuggets_env = "mhcnuggets"
 )
 }
 \arguments{
@@ -35,11 +37,15 @@ txt2binding(
 
 \item{method_type, }{which type prediction method used, could be "Binding", "Processing" or "Immuno"}
 
-\item{client_path}{The path of local IEDB tools, used when setting get_method as client}
+\item{client_path}{The path of local IEDB tools}
 
 \item{tmp_dir}{Character, the temp dir}
 
 \item{num_thread}{specify the number of threads to be used in annotation}
+
+\item{mhcflurry_env, }{the installed conda environment of mhcflurry, default is "mhcflurry-env"}
+
+\item{mhcnuggets_env, }{the installed conda environment of mhcnuggets, default is "mhcnuggets"}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).

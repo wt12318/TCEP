@@ -20,5 +20,5 @@ Dataframe containing 3 column: "amino_acid", "prediction_score", "sequence_id"
 Predict proteasomal processing using NetChop
 }
 \examples{
-netchop_processing(c("GHAHKVPRRLLKAA" "SLYNTVATLY"),"~/tmp/","~/software/netchop/")
+netchop_processing(c("GHAHKVPRRLLKAA","SLYNTVATLY"),"~/tmp/","~/software/netchop/")
 }

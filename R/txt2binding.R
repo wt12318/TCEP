@@ -118,9 +118,11 @@ txt2seq <- function(annovar_path,txt_path,
 #' @param allele A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}
 #' @param pre_method Character, indicating the prediction method. Available methods for HLA-I or HLA-II can be obtained by \code{\link{available_methods}}
 #' @param method_type, which type prediction method used, could be "Binding", "Processing" or "Immuno"
-#' @param client_path The path of local IEDB tools, used when setting get_method as client
+#' @param client_path The path of local IEDB tools
 #' @param tmp_dir Character, the temp dir
 #' @param num_thread specify the number of threads to be used in annotation
+#' @param mhcflurry_env, the installed conda environment of mhcflurry, default is "mhcflurry-env"
+#' @param mhcnuggets_env, the installed conda environment of mhcnuggets, default is "mhcnuggets"
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 #' @export
 #'
@@ -131,7 +133,8 @@ txt2seq <- function(annovar_path,txt_path,
 #'                     tmp_dir=tempdir(),num_thread=1,client_path="~/software/mhc_i/src/")
 txt2binding <- function(annovar_path,txt_path,
                         genome_version=c("hg19","hg38","mm10","mm9"),hla_type,pep_length,allele,
-                        pre_method,method_type,client_path,tmp_dir,num_thread){
+                        pre_method,method_type,client_path,tmp_dir,num_thread,
+                        mhcflurry_env="mhcflurry-env",mhcnuggets_env="mhcnuggets"){
 
   if (! dir.exists(tmp_dir)){
     dir.create(tmp_dir,recursive = TRUE)
@@ -165,7 +168,8 @@ txt2binding <- function(annovar_path,txt_path,
       pre_res_mt[[i]] <- MHCbinding:::general_mhcbinding(hla_type = hla_type, length = names(pre_res_mt)[i],
                                                          allele = allele,pre_method = pre_method,method_type=method_type,
                                                          peptide = pep_mt$ext_seqs_mt,client_path = client_path,
-                                                         tmp_dir=tmp_dir,mhcflurry_type="mt")
+                                                         tmp_dir=tmp_dir,mhcflurry_type="mt",
+                                                         mhcflurry_env=mhcflurry_env,mhcnuggets_env=mhcnuggets_env)
     }
 
     pre_res_mt <- dplyr::bind_rows(pre_res_mt)
@@ -196,7 +200,8 @@ txt2binding <- function(annovar_path,txt_path,
                                                          peptide = unique(wt_pep_dt$peptide_wt),
                                                          client_path = client_path,
                                                          method_type=method_type,
-                                                         tmp_dir=tmp_dir,mhcflurry_type="wt")
+                                                         tmp_dir=tmp_dir,mhcflurry_type="wt",
+                                                         mhcflurry_env=mhcflurry_env,mhcnuggets_env=mhcnuggets_env)
     }
     pre_res_wt <- bind_rows(pre_res_wt)
 

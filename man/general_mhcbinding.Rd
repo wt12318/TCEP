@@ -13,7 +13,9 @@ general_mhcbinding(
   pre_method,
   tmp_dir,
   method_type,
-  mhcflurry_type = "mt"
+  mhcflurry_type = "mt",
+  mhcflurry_env = "mhcflurry-env",
+  mhcnuggets_env = "mhcnuggets"
 )
 }
 \arguments{
