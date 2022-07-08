@@ -18,7 +18,8 @@ txt2binding(
   num_thread,
   mhcflurry_env = "mhcflurry-env",
   mhcnuggets_env = "mhcnuggets",
-  netchop_path = "~/software/netchop/"
+  netchop_path,
+  Immuno_IEDB_path
 )
 }
 \arguments{

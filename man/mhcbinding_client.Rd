@@ -16,7 +16,8 @@ mhcbinding_client(
   mhcflurry_type = "mt",
   mhcflurry_env = "mhcflurry-env",
   mhcnuggets_env = "mhcnuggets",
-  netchop_path
+  netchop_path,
+  Immuno_IEDB_path
 )
 }
 \arguments{
@@ -35,6 +36,10 @@ mhcbinding_client(
 \item{method_type, }{which type prediction method used, could be "Binding", "Processing" or "Immuno"}
 
 \item{mhcflurry_type, }{is calculating wt peptide for mhcflurry}
+
+\item{netchop_path, }{the path of Netchop}
+
+\item{Immuno_IEDB_path, }{the path of IEDB Class I Immunogenicity tool}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).

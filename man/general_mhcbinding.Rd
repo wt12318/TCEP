@@ -16,7 +16,8 @@ general_mhcbinding(
   mhcflurry_type = "mt",
   mhcflurry_env = "mhcflurry-env",
   mhcnuggets_env = "mhcnuggets",
-  netchop_path
+  netchop_path,
+  Immuno_IEDB_path
 )
 }
 \arguments{

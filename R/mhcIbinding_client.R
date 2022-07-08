@@ -78,6 +78,8 @@ netchop_processing <- function(pep,temp_dir,netchop_path){
 #' @param hla_type HLA type, I or II
 #' @param method_type, which type prediction method used, could be "Binding", "Processing" or "Immuno"
 #' @param mhcflurry_type, is calculating wt peptide for mhcflurry
+#' @param netchop_path, the path of Netchop
+#' @param Immuno_IEDB_path, the path of IEDB Class I Immunogenicity tool
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 
 mhcbinding_client <- function(client_path,
@@ -88,7 +90,8 @@ mhcbinding_client <- function(client_path,
                               method_type,
                               mhcflurry_type="mt",
                               mhcflurry_env="mhcflurry-env",
-                              mhcnuggets_env="mhcnuggets",netchop_path){
+                              mhcnuggets_env="mhcnuggets",
+                              netchop_path,Immuno_IEDB_path){
   input_len <- nchar(peptide)
   max_len <- max(input_len)
   min_len <- min(input_len)
@@ -110,12 +113,6 @@ mhcbinding_client <- function(client_path,
     for (j in seq_along(length)){
       if (hla_type == "I"){
         available_length <- available_len(pre_method,allele[i])
-        if (pre_method %in% c("mhcflurry","mhcnuggets")){
-          available_length <- c(5:15)
-        }
-        if (pre_method == "NetCTLpan"){
-          available_length <- c(8:11)
-        }
       }else{
         available_length <- c(11:30)
       }
@@ -126,7 +123,7 @@ mhcbinding_client <- function(client_path,
       ## 如果有一个序列小于指定的长度就会报错，因此去掉小于指定长度的序列
       ship_lines <- 0
       filter_pep <- peptide[which(input_len >= length[j])]
-      if (pre_method %in% c("mhcflurry","mhcnuggets","NetCTLpan")){
+      if (pre_method %in% c("mhcflurry","mhcnuggets","NetCTLpan","IEDB")){
         if (pre_method == "mhcflurry"){
           if (mhcflurry_type == "wt"){
             pep_res <- data.frame(peptide = filter_pep)
@@ -138,8 +135,8 @@ mhcbinding_client <- function(client_path,
           write.csv(pep_res,file = paste0(temp_dir,"/a"))
         }
 
-        if (pre_method == "mhcnuggets"){
-          ##mhcnuggets
+        if (pre_method %in% c("mhcnuggets","IEDB")){
+          ##mhcnuggets,IEDB
           pep_res <- split_pep(filter_pep,req_len = length[j])
           pep_res_pep <- data.frame(peptide = pep_res$peptide)
           write.table(pep_res_pep,file = paste0(temp_dir,"/a"),sep = "\t",col.names = F,row.names = F,quote = F)
@@ -180,7 +177,7 @@ mhcbinding_client <- function(client_path,
           }
         }else{
           if (pre_method %in% c("mhcflurry","mhcnuggets")){
-            ##TODO add mhcnuggets method
+            ##add mhcnuggets method
             if (pre_method == "mhcflurry"){
               command_run <- paste0(paste0("conda run -n ",mhcflurry_env," mhcflurry-predict "),
                                     paste0(temp_dir,"/a"), " > ",paste0(temp_dir,"/b"))
@@ -215,6 +212,9 @@ mhcbinding_client <- function(client_path,
       if (method_type == "Immuno"){
         if (pre_method == "IEDB"){
           ##TODO add iedb method
+          command_run <- paste0(Immuno_IEDB_path,
+                                "predict_immunogenicity.py --allele=", allele[i]," ",
+                                paste0(temp_dir,"/a"), " > ",paste0(temp_dir,"/b"))
         }
         if (pre_method == "PRIME2.0"){
           ##TODO add PRIME2.0
@@ -250,7 +250,11 @@ mhcbinding_client <- function(client_path,
         colnames(tmp) <- c("peptide","mhc_pre","tap_pre","cleavage_pre","combined_score_%rank")
         tmp <- left_join(tmp,pep_res)
         tmp$allele <- allele[i]
-      }else{
+      }else if (pre_method == "IEDB") {
+        tmp <- data.table::fread(paste0(temp_dir,"/b"),skip = "peptide,length,score",data.table = FALSE)
+        tmp <- left_join(tmp,pep_res %>% select(-length))
+        tmp$allele <- allele[i]
+      }else {
         tmp <- read.table(paste0(temp_dir,"/b"),header = T)
       }
       if (pre_method == "consensus"){
@@ -309,22 +313,11 @@ mhcIbinding_client <- function(client_path,
                                method_type = c("Binding","Processing","Immuno"),
                                mhcflurry_type="mt",
                                mhcflurry_env="mhcflurry-env",mhcnuggets_env="mhcnuggets",
-                               netchop_path="~/software/netchop/"){
-  if (pre_method %in% c("mhcflurry","mhcnuggets","NetCTLpan")){
-    if (pre_method == "NetCTLpan"){
-      length <- match.arg(as.character(length),
-                          choices = c(8:11),
-                          several.ok=T)
-    }else{
-      length <- match.arg(as.character(length),
-                          choices = c(5:15),
-                          several.ok=T)
-    }
-  }else{
-    length <- match.arg(as.character(length),
-                        choices = available_len(pre_method,allele),
-                        several.ok=T)
-  }
+                               netchop_path,
+                               Immuno_IEDB_path){
+  length <- match.arg(as.character(length),
+                      choices = available_len(pre_method,allele),
+                      several.ok=T)
   pre_method <- match.arg(pre_method)
   method_type <- match.arg(method_type)
   res <- MHCbinding:::mhcbinding_client(client_path=client_path,peptide=peptide,
@@ -332,7 +325,7 @@ mhcIbinding_client <- function(client_path,
                                         hla_type = "I",
                                         method_type=method_type,mhcflurry_type=mhcflurry_type,
                                         mhcflurry_env=mhcflurry_env,mhcnuggets_env=mhcnuggets_env,
-                                        netchop_path=netchop_path)
+                                        netchop_path=netchop_path,Immuno_IEDB_path=Immuno_IEDB_path)
   return(res)
 }
 

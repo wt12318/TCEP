@@ -149,8 +149,45 @@ usethis::use_data(available_lens)
 available_lens <- available_lens
 available_lens <- bind_rows(
   available_lens,
-  data.frame(Species="human",MHC=NA,
-             PeptideLength=c(8:11),method="NetCTLpan")
+  data.frame(Species="human",MHC=rep(available_alleles("Processing","I","NetCTLpan"),each=4),
+             PeptideLength=rep(c(8:11),length(available_alleles("Processing","I","NetCTLpan"))),
+             method="NetCTLpan")
+)
+available_lens <- bind_rows(
+  available_lens,
+  data.frame(Species="human",MHC=rep(available_alleles("Binding","I","mhcflurry"),each=11),
+             PeptideLength=rep(c(5:15),length(available_alleles("Binding","I","mhcflurry"))),
+             method="mhcflurry")
+)
+available_lens <- bind_rows(
+  available_lens,
+  data.frame(Species="human",MHC=rep(available_alleles("Binding","I","mhcnuggets"),each=11),
+             PeptideLength=rep(c(5:15),length(available_alleles("Binding","I","mhcnuggets"))),
+             method="mhcnuggets")
+)
+available_lens <- bind_rows(
+  available_lens,
+  data.frame(Species="human",MHC=rep(available_alleles("Immuno","I","IEDB"),each=1),
+             PeptideLength=rep(c(9),length(available_alleles("Immuno","I","IEDB"))),
+             method="IEDB")
+)
+available_lens <- bind_rows(
+  available_lens,
+  data.frame(Species="human",MHC=rep(available_alleles("Immuno","I","DeepImmuno"),each=2),
+             PeptideLength=rep(c(9:10),length(available_alleles("Immuno","I","DeepImmuno"))),
+             method="DeepImmuno")
+)
+available_lens <- bind_rows(
+  available_lens,
+  data.frame(Species="human",MHC=rep(available_alleles("Immuno","I","Seq2Neo-CNN"),each=4),
+             PeptideLength=rep(c(8:11),length(available_alleles("Immuno","I","Seq2Neo-CNN"))),
+             method="Seq2Neo-CNN")
+)
+available_lens <- bind_rows(
+  available_lens,
+  data.frame(Species="human",MHC=rep(available_alleles("Immuno","I","PRIME2.0"),each=7),
+             PeptideLength=rep(c(8:14),length(available_alleles("Immuno","I","PRIME2.0"))),
+             method="PRIME2.0")
 )
 usethis::use_data(available_lens,overwrite = TRUE)
 ###各种方法的列名
@@ -180,6 +217,10 @@ usethis::use_data(res_cols, overwrite = TRUE)
 
 res_cols <- res_cols
 res_cols["NetCTLpan"][[1]] <- colnames(tmp)[2:5]
+usethis::use_data(res_cols, overwrite = TRUE)
+
+res_cols <- res_cols
+res_cols["IEDB"][[1]] <- colnames(tmp)[3]
 usethis::use_data(res_cols, overwrite = TRUE)
 ##MHC-II
 method <- available_methods("client","MHC-II")
@@ -230,4 +271,7 @@ immuno_alleles <- data.frame(methods = c(rep("IEDB",length(iedb_imm_alleles)),
                              alleles = c(iedb_imm_alleles,prime_alleles$V1,
                                          deepimmuno$HLA,
                                          seq2neo_alleles))
-usethis::use_data(immuno_alleles)
+usethis::use_data(immuno_alleles,overwrite = TRUE)
+immuno_alleles <- immuno_alleles
+immuno_alleles$methods[which(immuno_alleles$methods=="PRIME")] <- "PRIME2.0"
+
