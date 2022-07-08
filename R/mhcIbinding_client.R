@@ -91,7 +91,8 @@ mhcbinding_client <- function(client_path,
                               mhcflurry_type="mt",
                               mhcflurry_env="mhcflurry-env",
                               mhcnuggets_env="mhcnuggets",
-                              netchop_path,Immuno_IEDB_path){
+                              netchop_path,Immuno_IEDB_path,
+                              Immuno_Deepimmuno_path,Deepimmuno_env){
   input_len <- nchar(peptide)
   max_len <- max(input_len)
   min_len <- min(input_len)
@@ -123,7 +124,7 @@ mhcbinding_client <- function(client_path,
       ## 如果有一个序列小于指定的长度就会报错，因此去掉小于指定长度的序列
       ship_lines <- 0
       filter_pep <- peptide[which(input_len >= length[j])]
-      if (pre_method %in% c("mhcflurry","mhcnuggets","NetCTLpan","IEDB")){
+      if (pre_method %in% c("mhcflurry","mhcnuggets","NetCTLpan","IEDB","DeepImmuno")){
         if (pre_method == "mhcflurry"){
           if (mhcflurry_type == "wt"){
             pep_res <- data.frame(peptide = filter_pep)
@@ -135,11 +136,17 @@ mhcbinding_client <- function(client_path,
           write.csv(pep_res,file = paste0(temp_dir,"/a"))
         }
 
-        if (pre_method %in% c("mhcnuggets","IEDB")){
-          ##mhcnuggets,IEDB
+        if (pre_method %in% c("mhcnuggets","IEDB", "DeepImmuno")){
+          ##mhcnuggets,IEDB,DeepImmuno
           pep_res <- split_pep(filter_pep,req_len = length[j])
           pep_res_pep <- data.frame(peptide = pep_res$peptide)
-          write.table(pep_res_pep,file = paste0(temp_dir,"/a"),sep = "\t",col.names = F,row.names = F,quote = F)
+          if (pre_method == "DeepImmuno"){
+            pep_res_pep$allele <- allele[i]
+            write.table(pep_res_pep,file = paste0(temp_dir,"/a"),sep = ",",col.names = F,row.names = F,quote = F)
+          }else{
+            write.table(pep_res_pep,file = paste0(temp_dir,"/a"),sep = "\t",col.names = F,row.names = F,quote = F)
+          }
+
         }
 
         if (pre_method == "NetCTLpan"){
@@ -221,6 +228,9 @@ mhcbinding_client <- function(client_path,
         }
         if (pre_method == "DeepImmuno"){
           ##TODO add DeepImmuno
+          command_run <- paste0("cd ",Immuno_Deepimmuno_path,"; conda run -n ",Deepimmuno_env," python ",
+                                "deepimmuno-cnn.py --mode 'multiple' --intdir ",
+                                paste0(temp_dir,"/a")," --outdir ",temp_dir)
         }
         if (pre_method == "Seq2Neo-CNN"){
           ##TODO add seq2Neo-CNN
@@ -230,9 +240,9 @@ mhcbinding_client <- function(client_path,
       cat("Predicting using ",pre_method,"\n")
 
       if (pre_method == "NetCTLpan"){
-        mess <- lapply(command_run,function(x){system(x)})
+        mess <- lapply(command_run,function(x){system(x,ignore.stdout=TRUE,ignore.stderr=TRUE)})
       }else{
-        mess <- system(command_run)
+        mess <- system(command_run,ignore.stdout=TRUE,ignore.stderr=TRUE)
       }
 
       if (pre_method == "mhcflurry"){
@@ -253,6 +263,10 @@ mhcbinding_client <- function(client_path,
       }else if (pre_method == "IEDB") {
         tmp <- data.table::fread(paste0(temp_dir,"/b"),skip = "peptide,length,score",data.table = FALSE)
         tmp <- left_join(tmp,pep_res %>% select(-length))
+        tmp$allele <- allele[i]
+      }else if (pre_method == "DeepImmuno"){
+        tmp <- read.table(paste0(temp_dir,"/deepimmuno-cnn-result.txt"),header = T)
+        tmp <- left_join(tmp,pep_res)
         tmp$allele <- allele[i]
       }else {
         tmp <- read.table(paste0(temp_dir,"/b"),header = T)
@@ -314,7 +328,7 @@ mhcIbinding_client <- function(client_path,
                                mhcflurry_type="mt",
                                mhcflurry_env="mhcflurry-env",mhcnuggets_env="mhcnuggets",
                                netchop_path,
-                               Immuno_IEDB_path){
+                               Immuno_IEDB_path,Immuno_Deepimmuno_path,Deepimmuno_env){
   length <- match.arg(as.character(length),
                       choices = available_len(pre_method,allele),
                       several.ok=T)
@@ -325,7 +339,8 @@ mhcIbinding_client <- function(client_path,
                                         hla_type = "I",
                                         method_type=method_type,mhcflurry_type=mhcflurry_type,
                                         mhcflurry_env=mhcflurry_env,mhcnuggets_env=mhcnuggets_env,
-                                        netchop_path=netchop_path,Immuno_IEDB_path=Immuno_IEDB_path)
+                                        netchop_path=netchop_path,Immuno_IEDB_path=Immuno_IEDB_path,
+                                        Immuno_Deepimmuno_path=Immuno_Deepimmuno_path,Deepimmuno_env=Deepimmuno_env)
   return(res)
 }
 

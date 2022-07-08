@@ -222,6 +222,10 @@ usethis::use_data(res_cols, overwrite = TRUE)
 res_cols <- res_cols
 res_cols["IEDB"][[1]] <- colnames(tmp)[3]
 usethis::use_data(res_cols, overwrite = TRUE)
+
+res_cols <- res_cols
+res_cols["DeepImmuno"][[1]] <- colnames(tt)[3]
+usethis::use_data(res_cols, overwrite = TRUE)
 ##MHC-II
 method <- available_methods("client","MHC-II")
 pre_method <- method[8]

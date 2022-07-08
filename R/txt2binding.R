@@ -135,7 +135,7 @@ txt2binding <- function(annovar_path,txt_path,
                         genome_version=c("hg19","hg38","mm10","mm9"),hla_type,pep_length,allele,
                         pre_method,method_type,client_path,tmp_dir,num_thread,
                         mhcflurry_env="mhcflurry-env",mhcnuggets_env="mhcnuggets",
-                        netchop_path,Immuno_IEDB_path){
+                        netchop_path,Immuno_IEDB_path,Immuno_Deepimmuno_path,Deepimmuno_env){
 
   if (! dir.exists(tmp_dir)){
     dir.create(tmp_dir,recursive = TRUE)
@@ -172,7 +172,9 @@ txt2binding <- function(annovar_path,txt_path,
                                                          tmp_dir=tmp_dir,mhcflurry_type="mt",
                                                          mhcflurry_env=mhcflurry_env,
                                                          mhcnuggets_env=mhcnuggets_env,netchop_path=netchop_path,
-                                                         Immuno_IEDB_path=Immuno_IEDB_path)
+                                                         Immuno_IEDB_path=Immuno_IEDB_path,
+                                                         Immuno_Deepimmuno_path=Immuno_Deepimmuno_path,
+                                                         Deepimmuno_env=Deepimmuno_env)
     }
 
     pre_res_mt <- dplyr::bind_rows(pre_res_mt)
@@ -206,7 +208,9 @@ txt2binding <- function(annovar_path,txt_path,
                                                          tmp_dir=tmp_dir,mhcflurry_type="wt",
                                                          mhcflurry_env=mhcflurry_env,
                                                          mhcnuggets_env=mhcnuggets_env,
-                                                         netchop_path=netchop_path,Immuno_IEDB_path=Immuno_IEDB_path)
+                                                         netchop_path=netchop_path,Immuno_IEDB_path=Immuno_IEDB_path,
+                                                         Immuno_Deepimmuno_path=Immuno_Deepimmuno_path,
+                                                         Deepimmuno_env=Deepimmuno_env)
     }
     pre_res_wt <- bind_rows(pre_res_wt)
 
