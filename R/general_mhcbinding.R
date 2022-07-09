@@ -17,7 +17,9 @@ general_mhcbinding <- function(hla_type=c("I","II"),
                                pre_method,tmp_dir,method_type,mhcflurry_type="mt",
                                mhcflurry_env="mhcflurry-env",
                                mhcnuggets_env="mhcnuggets",netchop_path,
-                               Immuno_IEDB_path,Immuno_Deepimmuno_path,Deepimmuno_env){
+                               Immuno_IEDB_path,Immuno_Deepimmuno_path,Deepimmuno_env,
+                               MixMHCpred_path,PRIME_path,
+                               seq2neo_env,seq2neo_path){
   hla_type <- match.arg(hla_type)
   if (hla_type == "I"){
     res <- mhcIbinding_client(client_path=client_path,tmp_dir=tmp_dir,
@@ -26,7 +28,9 @@ general_mhcbinding <- function(hla_type=c("I","II"),
                               method_type = method_type,mhcflurry_type=mhcflurry_type,
                               mhcflurry_env=mhcflurry_env,mhcnuggets_env=mhcnuggets_env,
                               netchop_path=netchop_path,Immuno_IEDB_path=Immuno_IEDB_path,
-                              Immuno_Deepimmuno_path=Immuno_Deepimmuno_path,Deepimmuno_env=Deepimmuno_env)
+                              Immuno_Deepimmuno_path=Immuno_Deepimmuno_path,Deepimmuno_env=Deepimmuno_env,
+                              MixMHCpred_path = MixMHCpred_path, PRIME_path = PRIME_path,
+                              seq2neo_env=seq2neo_env,seq2neo_path=seq2neo_path)
   }else{
     res <- mhcIIbinding_client(client_path=client_path,tmp_dir=tmp_dir,
                                peptide=peptide,allele =allele,

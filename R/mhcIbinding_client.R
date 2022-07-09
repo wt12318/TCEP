@@ -21,7 +21,7 @@ split_pep <- function(pep_seq, req_len){
                                         }
                                     })
                       t <- t[!is.na(t)]
-                    },simplify = TRUE)
+                    },simplify = FALSE)
   pep_res <- data.frame(
     seq_num = rep((1:length(pep_seq)),times=lengths(pep_res)),
     peptide = pep_res %>% unlist() %>% unname()
@@ -67,6 +67,44 @@ netchop_processing <- function(pep,temp_dir,netchop_path){
   return(tmp)
 }
 
+#' seq2neo help function to get ic50 and tap
+#'
+#' @param pep_len peptide length
+#' @param allele hla alleles
+#' @param peptide peptide sequences
+#' @param tmp_dir tmp dir
+#' @param netchop_path the path of neochop
+#' @param client_path the path of IEDB tools
+#'
+#' @return dataframe containg TAP and IC50
+#' @export
+#'
+#' @examples seq2neo_help(pep_len=c(8,9),allele=c("HLA-A*01:01","HLA-A*01:02"),
+#'                        tmp_dir="~/tmp/", netchop_path="~/software/netchop/",
+#'                        peptide=c("SLYNTVATLY","GHAHKVPR"),
+#'                        client_path = "~/software/mhc_i/src/")
+seq2neo_help <- function(pep_len, allele, peptide, tmp_dir, netchop_path, client_path){
+  tap_pre <- MHCbinding:::general_mhcbinding(hla_type = "I", length = pep_len,
+                                        allele = gsub("[*]","",allele),pre_method = "NetCTLpan",
+                                        method_type="Processing",
+                                        peptide = peptide,
+                                        tmp_dir=tmp_dir,netchop_path = netchop_path)
+  tap_pre <- tap_pre %>% select(peptide,allele,tap_pre)
+  ic50 <- MHCbinding:::general_mhcbinding(hla_type = "I", length = pep_len,
+                                        allele = allele, pre_method = "netmhcpan_ba",
+                                        method_type="Binding",
+                                        peptide = peptide,
+                                        tmp_dir= tmp_dir,client_path = client_path)
+  ic50 <- ic50 %>% select(peptide,allele,ic50)
+  ic50 <- left_join(
+    ic50 %>% mutate(index=paste(peptide,gsub("[*]","",allele),sep = "_")),
+    tap_pre %>% mutate(index=paste(peptide,allele,sep = "_")) %>% select(index,tap_pre)
+  )
+  ic50 <- ic50 %>% select(peptide,allele,ic50,tap_pre)
+  ic50$allele <- gsub("[*]","",ic50$allele)
+  return(ic50)
+}
+
 #' @title Predicting HLA peptide binding
 #'
 #' @description  This is the wrapped function for IEDB commond tools.
@@ -80,6 +118,7 @@ netchop_processing <- function(pep,temp_dir,netchop_path){
 #' @param mhcflurry_type, is calculating wt peptide for mhcflurry
 #' @param netchop_path, the path of Netchop
 #' @param Immuno_IEDB_path, the path of IEDB Class I Immunogenicity tool
+#' @export
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 
 mhcbinding_client <- function(client_path,
@@ -92,7 +131,8 @@ mhcbinding_client <- function(client_path,
                               mhcflurry_env="mhcflurry-env",
                               mhcnuggets_env="mhcnuggets",
                               netchop_path,Immuno_IEDB_path,
-                              Immuno_Deepimmuno_path,Deepimmuno_env){
+                              Immuno_Deepimmuno_path,Deepimmuno_env,
+                              MixMHCpred_path,PRIME_path,seq2neo_env,seq2neo_path){
   input_len <- nchar(peptide)
   max_len <- max(input_len)
   min_len <- min(input_len)
@@ -124,7 +164,7 @@ mhcbinding_client <- function(client_path,
       ## 如果有一个序列小于指定的长度就会报错，因此去掉小于指定长度的序列
       ship_lines <- 0
       filter_pep <- peptide[which(input_len >= length[j])]
-      if (pre_method %in% c("mhcflurry","mhcnuggets","NetCTLpan","IEDB","DeepImmuno")){
+      if (pre_method %in% c("mhcflurry","mhcnuggets","NetCTLpan","IEDB","DeepImmuno","PRIME2.0","Seq2Neo-CNN")){
         if (pre_method == "mhcflurry"){
           if (mhcflurry_type == "wt"){
             pep_res <- data.frame(peptide = filter_pep)
@@ -133,14 +173,14 @@ mhcbinding_client <- function(client_path,
             pep_res <- split_pep(filter_pep,req_len = length[j])
             pep_res$allele <- allele[i]##add seq_num and length
           }
-          write.csv(pep_res,file = paste0(temp_dir,"/a"))
+          write.csv(pep_res,file = paste0(temp_dir,"/a"),row.names = FALSE)
         }
 
-        if (pre_method %in% c("mhcnuggets","IEDB", "DeepImmuno")){
+        if (pre_method %in% c("mhcnuggets","IEDB", "DeepImmuno","PRIME2.0")){
           ##mhcnuggets,IEDB,DeepImmuno
           pep_res <- split_pep(filter_pep,req_len = length[j])
           pep_res_pep <- data.frame(peptide = pep_res$peptide)
-          if (pre_method == "DeepImmuno"){
+          if (pre_method %in% c("DeepImmuno")){
             pep_res_pep$allele <- allele[i]
             write.table(pep_res_pep,file = paste0(temp_dir,"/a"),sep = ",",col.names = F,row.names = F,quote = F)
           }else{
@@ -157,6 +197,16 @@ mhcbinding_client <- function(client_path,
             seqinr::write.fasta(x,names = y,
                                 file.out = paste0(temp_dir,"/a.",y))
           },temp_list,names(temp_list))
+        }
+
+        if (pre_method == "Seq2Neo-CNN"){
+          pep_res <- split_pep(filter_pep,req_len = length[j])
+          tap_ic50 <- MHCbinding::seq2neo_help(pep_len=length[j],allele=allele[i],
+                                               tmp_dir=temp_dir, netchop_path=netchop_path,
+                                               peptide=filter_pep,
+                                               client_path = client_path)
+          write.table(tap_ic50,file = paste0(temp_dir,"/a"),sep = ",",
+                      row.names = FALSE, col.names = TRUE,quote = FALSE)
         }
 
       }else{
@@ -214,35 +264,48 @@ mhcbinding_client <- function(client_path,
                  paste0(temp_dir,"/a.",x)," > ",paste0(temp_dir,"/b.",x))
         })
         }
-      }
+
 
       if (method_type == "Immuno"){
         if (pre_method == "IEDB"){
-          ##TODO add iedb method
+          ##add iedb method
           command_run <- paste0(Immuno_IEDB_path,
                                 "predict_immunogenicity.py --allele=", allele[i]," ",
                                 paste0(temp_dir,"/a"), " > ",paste0(temp_dir,"/b"))
         }
         if (pre_method == "PRIME2.0"){
-          ##TODO add PRIME2.0
+          ##add PRIME2.0
+          command_run <- paste0(PRIME_path,
+                                "/PRIME -i ", paste0(temp_dir,"/a"),
+                                " -o ",paste0(temp_dir,"/b")," -a ",allele[i],
+                                " -mix ",MixMHCpred_path)
         }
         if (pre_method == "DeepImmuno"){
-          ##TODO add DeepImmuno
+          ##add DeepImmuno
           command_run <- paste0("cd ",Immuno_Deepimmuno_path,"; conda run -n ",Deepimmuno_env," python ",
                                 "deepimmuno-cnn.py --mode 'multiple' --intdir ",
                                 paste0(temp_dir,"/a")," --outdir ",temp_dir)
         }
         if (pre_method == "Seq2Neo-CNN"){
-          ##TODO add seq2Neo-CNN
+          seq2neo_path <- normalizePath(seq2neo_path)
+          system(paste0("touch ",temp_dir,"/pre.py"))
+          writeLines(paste0("import sys\nsys.path.append('",seq2neo_path,"')\n",
+                            "from _cnn import *\n",
+                            "import pandas as pd\n",
+                            "a = pd.read_csv('",paste0(normalizePath(temp_dir),"/a"),"')\n",
+                            "file_process(a,'",normalizePath(temp_dir),"')"),
+                     paste0(temp_dir,"/pre.py"))
+          command_run <- paste0(paste0("conda run -n ",seq2neo_env," python "),
+                                paste0(temp_dir,"/pre.py"))
         }
       }
 
       cat("Predicting using ",pre_method,"\n")
 
       if (pre_method == "NetCTLpan"){
-        mess <- lapply(command_run,function(x){system(x,ignore.stdout=TRUE,ignore.stderr=TRUE)})
+        mess <- lapply(command_run,function(x){system(x)})
       }else{
-        mess <- system(command_run,ignore.stdout=TRUE,ignore.stderr=TRUE)
+        mess <- system(command_run)
       }
 
       if (pre_method == "mhcflurry"){
@@ -268,6 +331,18 @@ mhcbinding_client <- function(client_path,
         tmp <- read.table(paste0(temp_dir,"/deepimmuno-cnn-result.txt"),header = T)
         tmp <- left_join(tmp,pep_res)
         tmp$allele <- allele[i]
+      }else if (pre_method == "PRIME2.0") {
+        tmp <- data.table::fread(paste0(temp_dir,"/b"),data.table = FALSE)
+        tmp <- tmp[,1:4]
+        colnames(tmp)[1:4] <- c("peptide","PRIME_rank","PRIME_score","MixMHCpred_rank")
+        tmp <- left_join(tmp,pep_res)
+        tmp$allele <- allele[i]
+      }else if (pre_method == "Seq2Neo-CNN") {
+        tmp <- read.csv(paste0(temp_dir,"/cnn_results.csv"))
+        tmp <- tmp %>% select(-HLA,-pseudosequence)
+        colnames(tmp)[1] <- "peptide"
+        tmp <- left_join(tmp,pep_res)
+        tmp$allele <- allele[i]
       }else {
         tmp <- read.table(paste0(temp_dir,"/b"),header = T)
       }
@@ -277,6 +352,7 @@ mhcbinding_client <- function(client_path,
       res[[k]] <- tmp
       k <- k + 1
     }
+  }
 
 
   if(file.exists(paste0(temp_dir,"/a"))){
@@ -287,9 +363,9 @@ mhcbinding_client <- function(client_path,
     file.remove(paste0(temp_dir,"/b"))
   }
 
-  if(temp_dir != tempdir()){
-    unlink(temp_dir,recursive = T)
-  }
+  # if(temp_dir != tempdir()){
+  #   unlink(temp_dir,recursive = T)
+  # }
   res <- dplyr::bind_rows(res)
   return(res)
 }
@@ -328,19 +404,24 @@ mhcIbinding_client <- function(client_path,
                                mhcflurry_type="mt",
                                mhcflurry_env="mhcflurry-env",mhcnuggets_env="mhcnuggets",
                                netchop_path,
-                               Immuno_IEDB_path,Immuno_Deepimmuno_path,Deepimmuno_env){
+                               Immuno_IEDB_path,Immuno_Deepimmuno_path,Deepimmuno_env,
+                               MixMHCpred_path,PRIME_path,
+                               seq2neo_env,seq2neo_path){
   length <- match.arg(as.character(length),
                       choices = available_len(pre_method,allele),
                       several.ok=T)
   pre_method <- match.arg(pre_method)
   method_type <- match.arg(method_type)
-  res <- MHCbinding:::mhcbinding_client(client_path=client_path,peptide=peptide,
+  res <- MHCbinding::mhcbinding_client(client_path=client_path,peptide=peptide,
                                         allele=allele,length=length,pre_method=pre_method,tmp_dir=tmp_dir,
                                         hla_type = "I",
                                         method_type=method_type,mhcflurry_type=mhcflurry_type,
                                         mhcflurry_env=mhcflurry_env,mhcnuggets_env=mhcnuggets_env,
                                         netchop_path=netchop_path,Immuno_IEDB_path=Immuno_IEDB_path,
-                                        Immuno_Deepimmuno_path=Immuno_Deepimmuno_path,Deepimmuno_env=Deepimmuno_env)
+                                        Immuno_Deepimmuno_path=Immuno_Deepimmuno_path,
+                                        Deepimmuno_env=Deepimmuno_env,
+                                        MixMHCpred_path=MixMHCpred_path,PRIME_path=PRIME_path,
+                                       seq2neo_env=seq2neo_env,seq2neo_path=seq2neo_path)
   return(res)
 }
 
@@ -377,7 +458,7 @@ mhcIIbinding_client <- function(client_path,
                       several.ok=T)
   pre_method <- match.arg(pre_method)
   method_type <- match.arg(method_type)
-  res <- MHCbinding:::mhcbinding_client(client_path=client_path,peptide=peptide,
+  res <- MHCbinding::mhcbinding_client(client_path=client_path,peptide=peptide,
                                         allele=allele,length=length,pre_method=pre_method,tmp_dir=tmp_dir,
                                         hla_type  = "II",method_type=method_type,
                                         mhcnuggets_env=mhcnuggets_env)

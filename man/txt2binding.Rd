@@ -21,7 +21,11 @@ txt2binding(
   netchop_path,
   Immuno_IEDB_path,
   Immuno_Deepimmuno_path,
-  Deepimmuno_env
+  Deepimmuno_env,
+  MixMHCpred_path,
+  PRIME_path,
+  seq2neo_env,
+  seq2neo_path
 )
 }
 \arguments{

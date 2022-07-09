@@ -226,6 +226,14 @@ usethis::use_data(res_cols, overwrite = TRUE)
 res_cols <- res_cols
 res_cols["DeepImmuno"][[1]] <- colnames(tt)[3]
 usethis::use_data(res_cols, overwrite = TRUE)
+
+res_cols <- res_cols
+res_cols["PRIME2.0"][[1]] <- c("PRIME_rank","PRIME_score","MixMHCpred_rank")
+usethis::use_data(res_cols, overwrite = TRUE)
+
+res_cols <- res_cols
+res_cols["Seq2Neo-CNN"][[1]] <- colnames(tmp)[2:4]
+usethis::use_data(res_cols, overwrite = TRUE)
 ##MHC-II
 method <- available_methods("client","MHC-II")
 pre_method <- method[8]
@@ -279,3 +287,26 @@ usethis::use_data(immuno_alleles,overwrite = TRUE)
 immuno_alleles <- immuno_alleles
 immuno_alleles$methods[which(immuno_alleles$methods=="PRIME")] <- "PRIME2.0"
 
+##Repitope
+devtools::install_github("masato-ogishi/Repitope",lib="/home/data/R/R-4.1.0/library")
+library(Repitope,lib.loc = "/home/data/R/R-4.1.0/library")
+##下载数据 https://data.mendeley.com/datasets/sydw5xnxpt/1
+fragLibDT <- fst::read_fst("~/tmp/Repitope/FragmentLibrary_TCRSet_Public_RepitopeV3.fst", as.data.table=T)
+featureDF_MHCI <- fst::read_fst("~/tmp/Repitope/FeatureDF_MHCI_Weighted.10000_RepitopeV3.fst", as.data.table=T)
+featureDF_MHCII <- fst::read_fst("~/tmp/Repitope/FeatureDF_MHCII_Weighted.10000_RepitopeV3.fst", as.data.table=T)
+
+res_MHCI <- EpitopePrioritization(
+  featureDF=featureDF_MHCI[Peptide%in%MHCI_Human$Peptide,],
+  metadataDF=MHCI_Human[,.(Peptide,Immunogenicity)],
+  peptideSet=c("GHAHKVPRRLLKAA", "SLYNTVATLY"),
+  peptideLengthSet=8:15,
+  fragLib=fragLibDT,
+  aaIndexIDSet="all",
+  fragLenSet=3:8,
+  fragDepth=10000,
+  fragLibType="Weighted",
+  featureSet=MHCI_Human_MinimumFeatureSet,
+  seedSet=1:5,
+  coreN=parallel::detectCores(logical=F),
+  outDir="./Output"  ## Intermediate and final output files will be stored under this directory
+)
