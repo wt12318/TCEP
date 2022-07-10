@@ -46,6 +46,18 @@ mhcbinding_client(
 \item{netchop_path, }{the path of Netchop}
 
 \item{Immuno_IEDB_path, }{the path of IEDB Class I Immunogenicity tool}
+
+\item{Immuno_Deepimmuno_path, }{the deepimmuno-cnn.py script path}
+
+\item{Deepimmuno_env, }{the conda envrionment of Deepimmuno}
+
+\item{MixMHCpred_path, }{the intalled Mixmhcpred path}
+
+\item{PRIME_path, }{PRIME tool path}
+
+\item{seq2neo_env, }{the conda env of seq2neo}
+
+\item{seq2neo_path, }{the of \code{immuno_Prediction} dir of Seq2Neo}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).

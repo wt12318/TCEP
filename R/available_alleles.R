@@ -1,4 +1,4 @@
-#' @title Show available alleles for MHC-I or MHC-II and corresponding methods.
+#' @title Show available alleles for HLA-I or HLA-II and corresponding methods.
 #'
 #' @param pre_type Character, what kind of method to use, could be "Binging", "Processing", or "Immuno"
 #' @param pre_method Character, which method to used for predicting MHC-peptide binding. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}
@@ -7,7 +7,7 @@
 #' @export
 #'
 #' @examples
-#' available_alleles("MHC-I","ann")
+#' available_alleles("Binding","I","ann")
 available_alleles <- function(pre_type = c("Binding","Processing","Immuno"),
                               HLA_type = c("I","II"),
                               pre_method){

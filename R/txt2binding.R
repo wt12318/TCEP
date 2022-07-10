@@ -123,14 +123,23 @@ txt2seq <- function(annovar_path,txt_path,
 #' @param num_thread specify the number of threads to be used in annotation
 #' @param mhcflurry_env, the installed conda environment of mhcflurry, default is "mhcflurry-env"
 #' @param mhcnuggets_env, the installed conda environment of mhcnuggets, default is "mhcnuggets"
+#' @param netchop_path, the installed netchop path
+#' @param Immuno_IEDB_path, the installed IEDB immunogenicity tool
+#' @param Immuno_Deepimmuno_path, the deepimmuno-cnn.py script path
+#' @param Deepimmuno_env, the conda envrionment of Deepimmuno
+#' @param MixMHCpred_path, the intalled Mixmhcpred path
+#' @param PRIME_path, PRIME tool path
+#' @param seq2neo_env, the conda env of seq2neo
+#' @param seq2neo_path, the of `immuno_Prediction` dir of Seq2Neo
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 #' @export
 #'
 #' @examples
-#' test <- txt2binding(annovar_path = "~/software/annovar/",txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
-#'                     genome_version = "hg19",hla_type = "I",pep_length = c(9,10),
-#'                     allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",method_type="Binding"
-#'                     tmp_dir=tempdir(),num_thread=1,client_path="~/software/mhc_i/src/")
+#' test <- txt2binding(annovar_path = "~/software/annovar/annovar/",
+#'                     txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
+#'                     genome_version = "hg19",hla_type = "I",pep_length = c(9),
+#'                     allele = c("HLA-A*01:01"),pre_method = "netmhcpan_el",tmp_dir=tempdir(),
+#'                     num_thread=1,method_type = "Binding",client_path="~/software/mhc_i/src/")
 txt2binding <- function(annovar_path,txt_path,
                         genome_version=c("hg19","hg38","mm10","mm9"),hla_type,pep_length,allele,
                         pre_method,method_type,client_path,tmp_dir,num_thread,

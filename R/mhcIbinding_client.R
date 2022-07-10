@@ -118,6 +118,12 @@ seq2neo_help <- function(pep_len, allele, peptide, tmp_dir, netchop_path, client
 #' @param mhcflurry_type, is calculating wt peptide for mhcflurry
 #' @param netchop_path, the path of Netchop
 #' @param Immuno_IEDB_path, the path of IEDB Class I Immunogenicity tool
+#' @param Immuno_Deepimmuno_path, the deepimmuno-cnn.py script path
+#' @param Deepimmuno_env, the conda envrionment of Deepimmuno
+#' @param MixMHCpred_path, the intalled Mixmhcpred path
+#' @param PRIME_path, PRIME tool path
+#' @param seq2neo_env, the conda env of seq2neo
+#' @param seq2neo_path, the of `immuno_Prediction` dir of Seq2Neo
 #' @export
 #' @return A dataframe contains the predicted IC50 and precentile rank (if available).
 

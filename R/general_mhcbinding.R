@@ -7,10 +7,14 @@
 #' @return Dataframe
 #'
 #' @examples
-#' general_mhcbinding(hla_type = "I",peptide = "SLYNTVATLY",
-#'                    allele = "HLA-A*01:01",length = "8",
-#'                    pre_method = "netmhcpan_el",
-#'                    client_path="~/software/mhc_i/src/",tmp_dir=tmp())
+#'test <- MHCbinding:::general_mhcbinding(hla_type = "I", length = c(10),
+#'                                       allele = c("HLA-A*01:01"),pre_method = "Seq2Neo-CNN",
+#'                                       method_type="Immuno",
+#'                                       peptide = c("NVDTHPGSGK","QTSEKALLRR"),
+#'                                       tmp_dir="~/tmp/",netchop_path = "~/software/netchop/",
+#'                                       client_path = "~/software/mhc_i/src/",
+#'                                       seq2neo_env = "DeepImmuno",
+#'                                       seq2neo_path = "~/software/Seq2Neo/seq2neo/function/immuno_Prediction/")
 
 general_mhcbinding <- function(hla_type=c("I","II"),
                                client_path,peptide,allele,length,

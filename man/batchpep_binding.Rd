@@ -5,21 +5,30 @@
 \title{Predict binding affinity of peptides with MHC in batch mode.}
 \usage{
 batchpep_binding(
-  get_method = c("api", "client"),
   pep_file,
-  mhc_type,
+  hla_type,
   pep_length,
   allele,
   pre_method,
-  client_path
+  method_type,
+  client_path,
+  tmp_dir,
+  mhcflurry_env = "mhcflurry-env",
+  mhcnuggets_env = "mhcnuggets",
+  netchop_path,
+  Immuno_IEDB_path,
+  Immuno_Deepimmuno_path,
+  Deepimmuno_env,
+  MixMHCpred_path,
+  PRIME_path,
+  seq2neo_env,
+  seq2neo_path
 )
 }
 \arguments{
-\item{get_method}{The way to predict, can be api or client.}
-
 \item{pep_file}{Character, the path of peptide file needed to be processed, each row refers to a peptide sequence.}
 
-\item{mhc_type}{MHC class, can be MHC-I or MHC-II.}
+\item{hla_type}{HLA class, can be HLA-I or HLA-II.}
 
 \item{pep_length}{A numeric or character vector, indicating the length for which to make predictions. For MHC-I, the length can be 8-15, for MHC-II, the length can be 11-30 or asis (take the length of input sequence as the peptide length)}
 
@@ -28,6 +37,28 @@ batchpep_binding(
 \item{pre_method}{Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}}
 
 \item{client_path}{The path of local IEDB tools, used when setting get_method as client}
+
+\item{tmp_dir}{Character, the temp dir}
+
+\item{mhcflurry_env, }{the installed conda environment of mhcflurry, default is "mhcflurry-env"}
+
+\item{mhcnuggets_env, }{the installed conda environment of mhcnuggets, default is "mhcnuggets"}
+
+\item{netchop_path, }{the installed netchop path}
+
+\item{Immuno_IEDB_path, }{the installed IEDB immunogenicity tool}
+
+\item{Immuno_Deepimmuno_path, }{the deepimmuno-cnn.py script path}
+
+\item{Deepimmuno_env, }{the conda envrionment of Deepimmuno}
+
+\item{MixMHCpred_path, }{the intalled Mixmhcpred path}
+
+\item{PRIME_path, }{PRIME tool path}
+
+\item{seq2neo_env, }{the conda env of seq2neo}
+
+\item{seq2neo_path, }{the of \code{immuno_Prediction} dir of Seq2Neo}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).
@@ -36,6 +67,8 @@ A dataframe contains the predicted IC50 and precentile rank (if available).
 Predict binding affinity of peptides with MHC in batch mode.
 }
 \examples{
-res <- batchpep_binding(get_method="api",pep_file=system.file("extdata", "random.pep", package = "MHCbinding"),
-                                  mhc_type="MHC-I",pep_length=c(9,10),allele="HLA-A*01:01",pre_method="ann")
+test <- batchpep_binding(pep_file=system.file("extdata", "random.pep", package = "MHCbinding"),
+                         hla_type = "I",pep_length = c(9),allele = c("HLA-A*01:01"),
+                         pre_method = "netmhcpan_el",tmp_dir=tempdir(),
+                         num_thread=1,method_type = "Binding",client_path="~/software/mhc_i/src/")
 }

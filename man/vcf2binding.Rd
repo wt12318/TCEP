@@ -5,24 +5,32 @@
 \title{Predict peptide MHC binding based on VCF file.}
 \usage{
 vcf2binding(
-  get_method = c("api", "client"),
   annovar_path,
   vcf_path,
   genome_version = c("hg19", "hg38"),
   need_allsamples = FALSE,
   need_samples,
-  mhc_type,
+  hla_type,
   pep_length,
   allele,
   pre_method,
+  method_type,
   client_path,
+  tmp_dir,
   num_thread,
-  tmp_dir
+  mhcflurry_env = "mhcflurry-env",
+  mhcnuggets_env = "mhcnuggets",
+  netchop_path,
+  Immuno_IEDB_path,
+  Immuno_Deepimmuno_path,
+  Deepimmuno_env,
+  MixMHCpred_path,
+  PRIME_path,
+  seq2neo_env,
+  seq2neo_path
 )
 }
 \arguments{
-\item{get_method}{The way to predict, can be api or client.}
-
 \item{annovar_path}{Character, the install path of annovar.}
 
 \item{vcf_path}{Character, the path of VCF file needed to be converted.}
@@ -33,19 +41,41 @@ vcf2binding(
 
 \item{need_samples}{Character, the needed sample when multi-sample VCF file is supplied.}
 
-\item{mhc_type}{MHC class, can be MHC-I or MHC-II.}
+\item{hla_type}{HLA class, can be HLA-I or HLA-II.}
 
 \item{pep_length}{A numeric or character vector, indicating the length for which to make predictions. For MHC-I, the length can be 8-15, for MHC-II, the length can be 11-30 or asis (take the length of input sequence as the peptide length)}
 
 \item{allele}{A character vector of HLA alleles, available alleles for specific method can be obtained by \code{\link{available_alleles}}}
 
-\item{pre_method}{Character, indicating the prediction method. Available methods for MHC-I or MHC-II can be obtained by \code{\link{available_methods}}}
+\item{pre_method}{Character, indicating the prediction method. Available methods for HLA-I or HLA-II can be obtained by \code{\link{available_methods}}}
+
+\item{method_type, }{which type prediction method used, could be "Binding", "Processing" or "Immuno"}
 
 \item{client_path}{The path of local IEDB tools, used when setting get_method as client}
 
+\item{tmp_dir}{temp dir}
+
 \item{num_thread}{specify the number of threads to be used in annotation}
 
-\item{tmp_dir}{temp dir}
+\item{mhcflurry_env, }{the installed conda environment of mhcflurry, default is "mhcflurry-env"}
+
+\item{mhcnuggets_env, }{the installed conda environment of mhcnuggets, default is "mhcnuggets"}
+
+\item{netchop_path, }{the installed netchop path}
+
+\item{Immuno_IEDB_path, }{the installed IEDB immunogenicity tool}
+
+\item{Immuno_Deepimmuno_path, }{the deepimmuno-cnn.py script path}
+
+\item{Deepimmuno_env, }{the conda envrionment of Deepimmuno}
+
+\item{MixMHCpred_path, }{the intalled Mixmhcpred path}
+
+\item{PRIME_path, }{PRIME tool path}
+
+\item{seq2neo_env, }{the conda env of seq2neo}
+
+\item{seq2neo_path, }{the of \code{immuno_Prediction} dir of Seq2Neo}
 }
 \value{
 A dataframe contains the predicted IC50 and precentile rank (if available).
@@ -54,7 +84,11 @@ A dataframe contains the predicted IC50 and precentile rank (if available).
 This function use \code{\link{vcf2seq}} to exacted mutated "new peptide" from VCF file, and predicted the binding affinity of these peptide with specific MHC allele using \code{\link{general_mhcbinding}}
 }
 \examples{
-test <- vcf2binding(get_method="api",annovar_path = "~/software/annovar/",vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
-                    genome_version = "hg38",need_allsamples = FALSE,need_samples = "TUMOR",mhc_type = "MHC-I",pep_length = c(9,10),
-                    allele = c("HLA-A*01:01", "HLA-A*03:01"),pre_method = "ann",num_thread=1,tmp_dir=tempdir())
+test <- vcf2binding(annovar_path = "~/software/annovar/annovar/",
+                   vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
+                   hla_type = "I",pep_length = c(9,10),genome_version = "hg38",
+                   need_allsamples = FALSE,need_samples = "TUMOR",
+                   allele = c("HLA-A0101","HLA-A0102"),pre_method = "mhcflurry",tmp_dir=tempdir(),
+                   num_thread=1,method_type = "Binding",
+                   mhcflurry_env="mhcflurry-env")
 }

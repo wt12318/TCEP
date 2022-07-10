@@ -2,7 +2,7 @@
 % Please edit documentation in R/available_alleles.R
 \name{available_alleles}
 \alias{available_alleles}
-\title{Show available alleles for MHC-I or MHC-II and corresponding methods.}
+\title{Show available alleles for HLA-I or HLA-II and corresponding methods.}
 \usage{
 available_alleles(
   pre_type = c("Binding", "Processing", "Immuno"),
@@ -21,8 +21,8 @@ available_alleles(
 A dataframe (tibble) contains one column of available alleles.
 }
 \description{
-Show available alleles for MHC-I or MHC-II and corresponding methods.
+Show available alleles for HLA-I or HLA-II and corresponding methods.
 }
 \examples{
-available_alleles("MHC-I","ann")
+available_alleles("Binding","I","ann")
 }
