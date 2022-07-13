@@ -35,7 +35,7 @@ available_methods <- function(pre_type=c("Binding","Processing","Immuno")){
     cat(crayon::green("Antigen processing methods: ","\n"))
     print(methods_pre)
   }else {
-    methods_pre <- c("IEDB","PRIME2.0","DeepImmuno","Seq2Neo-CNN")
+    methods_pre <- c("IEDB","PRIME2.0","DeepImmuno","Seq2Neo-CNN","Immuno-GNN")
     cat(crayon::green("Antigen immunogenicity methods: ","\n"))
     print(methods_pre)
   }

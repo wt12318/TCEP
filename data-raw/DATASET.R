@@ -58,6 +58,13 @@ usethis::use_data(mhcIallele,overwrite = T)
 
 mhcIallele <- mhcIallele
 mhcIallele$method[which(mhcIallele$method == "mhcnuggest")] <- "mhcnuggets"
+
+mhcIallele <- bind_rows(
+  mhcIallele,
+  data.frame(alleles = pseudu$V1 %>% unique(),
+             method = "Immuno-GNN")
+)
+usethis::use_data(mhcIallele,overwrite = T)
 ###MHC-II
 for (i in mhcIIbinding_api_methods$method){
   i <- gsub(" \\(netmhcii\\)","",i)
@@ -190,6 +197,15 @@ available_lens <- bind_rows(
              method="PRIME2.0")
 )
 usethis::use_data(available_lens,overwrite = TRUE)
+
+available_lens <- available_lens
+available_lens <- bind_rows(
+  available_lens,
+  data.frame(Species="human",MHC=rep(available_alleles("Immuno","I","Immuno-GNN"),each=15),
+             PeptideLength=rep(c(6:20),length(available_alleles("Immuno","I","Immuno-GNN"))),
+             method="Immuno-GNN")
+)
+usethis::use_data(available_lens,overwrite = TRUE)
 ###各种方法的列名
 #MHC-I
 smmpmbec <- c("ic50","rank")
@@ -287,6 +303,14 @@ usethis::use_data(immuno_alleles,overwrite = TRUE)
 immuno_alleles <- immuno_alleles
 immuno_alleles$methods[which(immuno_alleles$methods=="PRIME")] <- "PRIME2.0"
 
+immuno_alleles <- immuno_alleles
+immuno_alleles <- bind_rows(
+  immuno_alleles,
+  data.frame(
+    methods = "Immuno-GNN",
+    alleles = pseudu$V1 %>% unique())
+)
+usethis::use_data(immuno_alleles,overwrite = T)
 ##Repitope
 devtools::install_github("masato-ogishi/Repitope",lib="/home/data/R/R-4.1.0/library")
 library(Repitope,lib.loc = "/home/data/R/R-4.1.0/library")
@@ -310,3 +334,9 @@ res_MHCI <- EpitopePrioritization(
   coreN=parallel::detectCores(logical=F),
   outDir="./Output"  ## Intermediate and final output files will be stored under this directory
 )
+
+##
+pseudu  <- data.table::fread("~/software/neo_pre/netMHCpan-4.1/data/MHC_pseudo.dat",header = F,fill=TRUE,data.table = F)
+pseudu <- pseudu %>% filter(grepl("HLA",V1)) %>% filter(grepl(":",V1))
+usethis::use_data(pseudu)
+

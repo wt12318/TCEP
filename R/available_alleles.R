@@ -40,7 +40,7 @@ available_alleles <- function(pre_type = c("Binding","Processing","Immuno"),
     }
   }else {
     pre_method <- match.arg(pre_method,
-                            choices = c("IEDB","PRIME2.0","DeepImmuno","Seq2Neo-CNN"))
+                            choices = c("IEDB","PRIME2.0","DeepImmuno","Seq2Neo-CNN","Immuno-GNN"))
     if (HLA_type == "II"){
       cat(crayon::red("Immuno only for HLA-I","\n"))
       return(invisible(NULL))
