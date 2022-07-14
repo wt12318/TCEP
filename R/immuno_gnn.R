@@ -30,7 +30,7 @@ immuno_gnn <- function(input_type="single", input_file, pep, hla,
     ungroup() %>%
     mutate(type=0)
   write.csv(pep_file,file = paste0(temp_dir,"/pep_file.csv"),quote = FALSE,row.names = FALSE)
-  system(paste0("source ~/.bashrc; conda run -n ",immuno_gnn_env," python ",
+  system(paste0("conda run -n ",immuno_gnn_env," python ",
                 normalizePath(immuno_gnn_path),"/Immuno_gnn.py ",
                 "-a ",normalizePath(immuno_gnn_path),"/aaindex1_pca.csv ",
                 "-m ",normalizePath(immuno_gnn_path),"/last_model.pth ",
