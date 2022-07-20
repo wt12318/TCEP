@@ -8,7 +8,7 @@
 1	105492231	105492231	A	ATAAA	comments: rs10552169, a block substitution
 1	67705958	67705958	G	A	comments: rs11209026 (R381Q), a SNP in IL23R associated with Crohn's disease
 2	234183368	234183368	A	G	comments: rs2241880 (T300A), a SNP in the ATG16L1 associated with Crohn's disease
-16	50745926	50745926	C	T	comments: rs2066844 (R702W), a non-synonymous SNP in NOD2
+16  50745926	50745926	C	T	comments: rs2066844 (R702W), a non-synonymous SNP in NOD2
 16	50756540	50756540	G	C	comments: rs2066845 (G908R), a non-synonymous SNP in NOD2
 16	50763778	50763778	-	C	comments: rs2066847 (c.3016_3017insC), a frameshift SNP in NOD2
 13	20763686	20763686	G	-	comments: rs1801002 (del35G), a frameshift mutation in GJB2, associated with hearing loss
