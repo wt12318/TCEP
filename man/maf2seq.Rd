@@ -33,6 +33,6 @@ A dataframe containg wildtype and the mutated protein sequence, plus exacted seq
 This function use \code{\link{maf2pep}} to convert MAF file to mutated peptides, and use \code{\link{extractSeq}} to extract proper range of amino acids.
 }
 \examples{
-maf2seq(annovar_path = annovar_path,maf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
+maf2seq(annovar_path = annovar_path,maf_path = system.file("extdata", "test.maf", package = "TCAP"),
         need_allsamples = TRUE,len = 9,num_thread=1)
 }

@@ -18,7 +18,7 @@
 immuno_gnn <- function(input_type="single", input_file, pep, hla,
                        immuno_gnn_env, immuno_gnn_path, num_thread, temp_dir){
   input_type <- match.arg(arg = input_type, choices = c("single","multiple"))
-  pseudu <- MHCbinding::pseudu
+  pseudu <- TCAP::pseudu
   if (input_type == "multiple"){
     pep_file <- read.csv(input_file)
   }else{

@@ -36,7 +36,7 @@ A dataframe containg wildtype and the mutated protein sequence, plus exacted seq
 This function use \code{\link{vcf2pep}} to convert VCF file to mutated peptides, and use \code{\link{extractSeq}} to extract proper range of amino acids.
 }
 \examples{
-vcf2seq(annovar_path = annovar_path,vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
+vcf2seq(annovar_path = annovar_path,vcf_path = system.file("extdata", "test_grch38.vcf", package = "TCAP"),
         genome_version = "hg38",
         need_allsamples = FALSE,need_samples = "TUMOR",len = 9,num_thread=1)
 }

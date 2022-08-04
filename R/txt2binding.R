@@ -14,7 +14,7 @@
 #' @export
 #'
 #' @examples
-#' pep <- txt2pep(annovar_path = annovar_path,txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
+#' pep <- txt2pep(annovar_path = annovar_path,txt_path = system.file("extdata", "test_avinput.txt", package = "TCAP"),
 #'                genome_version = "hg19",tmp_dir=tempdir(),num_thread=1)
 txt2pep <- function(annovar_path,txt_path,
                     genome_version=c("hg19","hg38","mm10","mm9"),tmp_dir,num_thread){
@@ -75,7 +75,7 @@ txt2pep <- function(annovar_path,txt_path,
 #' @export
 #'
 #' @examples
-#' txt2seq(annovar_path = annovar_path,txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
+#' txt2seq(annovar_path = annovar_path,txt_path = system.file("extdata", "test_avinput.txt", package = "TCAP"),
 #'         genome_version = "hg19",len = 9,tmp_dir=tempdir(),num_thread=1)
 txt2seq <- function(annovar_path,txt_path,
                     genome_version=c("hg19","hg38"),len,tmp_dir,num_thread){
@@ -91,9 +91,9 @@ txt2seq <- function(annovar_path,txt_path,
       dplyr::rowwise() %>%
       dplyr::mutate(indel=ifelse(ref != "-" & alt != "-" & nchar(ref) == 1 & nchar(alt) == 1,"FALSE","TRUE")) %>%
       as.data.frame()
-    ext_seqs_mt <- mapply(MHCbinding::extractSeq,seq=pep$seq_mt,pos=as.numeric(pep$pos),
+    ext_seqs_mt <- mapply(TCAP::extractSeq,seq=pep$seq_mt,pos=as.numeric(pep$pos),
                           len=as.numeric(len),indel=pep$indel) %>% unname()
-    ext_seqs_wt <- mapply(MHCbinding::extractSeq,seq=pep$seq_wt,pos=as.numeric(pep$pos),
+    ext_seqs_wt <- mapply(TCAP::extractSeq,seq=pep$seq_wt,pos=as.numeric(pep$pos),
                           len=as.numeric(len),indel=pep$indel) %>% unname()
     ##remove the last star
     a <-  substr(ext_seqs_mt,nchar(ext_seqs_mt),nchar(ext_seqs_mt))=="*"
@@ -136,7 +136,7 @@ txt2seq <- function(annovar_path,txt_path,
 #'
 #' @examples
 #' test <- txt2binding(annovar_path = "~/software/annovar/annovar/",
-#'                     txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
+#'                     txt_path = system.file("extdata", "test_avinput.txt", package = "TCAP"),
 #'                     genome_version = "hg19",hla_type = "I",pep_length = c(9),
 #'                     allele = c("HLA-A*01:01"),pre_method = "netmhcpan_el",tmp_dir=tempdir(),
 #'                     num_thread=1,method_type = "Binding",client_path="~/software/mhc_i/src/")
@@ -176,7 +176,7 @@ txt2binding <- function(annovar_path,txt_path,
     names(pre_res_mt) <- pep_length
     for (i in seq_along(pre_res_mt)){
       pep_mt <- res[res$predicted_length == names(pre_res_mt)[i],"ext_seqs_mt"]
-      pre_res_mt[[i]] <- MHCbinding:::general_mhcbinding(hla_type = hla_type, length = names(pre_res_mt)[i],
+      pre_res_mt[[i]] <- TCAP:::general_mhcbinding(hla_type = hla_type, length = names(pre_res_mt)[i],
                                                          allele = allele,pre_method = pre_method,method_type=method_type,
                                                          peptide = pep_mt$ext_seqs_mt,client_path = client_path,
                                                          tmp_dir=tmp_dir,mhcflurry_type="mt",
@@ -211,7 +211,7 @@ txt2binding <- function(annovar_path,txt_path,
     for (i in seq_along(pre_res_wt)){
       wt_pep_dt <- pre_res_mt %>%
         filter(length == names(pre_res_wt)[i])
-      pre_res_wt[[i]] <- MHCbinding:::general_mhcbinding(hla_type = hla_type, length = names(pre_res_wt)[i],
+      pre_res_wt[[i]] <- TCAP:::general_mhcbinding(hla_type = hla_type, length = names(pre_res_wt)[i],
                                                          allele = unique(wt_pep_dt$allele),
                                                          pre_method = pre_method,
                                                          peptide = unique(wt_pep_dt$peptide_wt),

@@ -9,7 +9,7 @@
 #' @examples
 #' available_len("comblib_sidney2008","HLA-A*30:01")
 available_len <- function(pre_method,pre_allele){
-  dt <- MHCbinding::available_lens
+  dt <- TCAP::available_lens
   dt <- dt %>%
     filter(MHC %in% pre_allele & method %in% pre_method)
   if (pre_method == "DeepImmuno"){

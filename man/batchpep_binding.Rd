@@ -67,7 +67,7 @@ A dataframe contains the predicted IC50 and precentile rank (if available).
 Predict binding affinity of peptides with MHC in batch mode.
 }
 \examples{
-test <- batchpep_binding(pep_file=system.file("extdata", "random.pep", package = "MHCbinding"),
+test <- batchpep_binding(pep_file=system.file("extdata", "random.pep", package = "TCAP"),
                          hla_type = "I",pep_length = c(9),allele = c("HLA-A*01:01"),
                          pre_method = "netmhcpan_el",tmp_dir=tempdir(),
                          num_thread=1,method_type = "Binding",client_path="~/software/mhc_i/src/")

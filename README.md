@@ -1,21 +1,21 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# MHCbinding
+# TCAP
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of MHCbinding is to …
+The goal of TCAP is to …
 
 ## Installation
 
-You can install the development version of MHCbinding from
+You can install the development version of TCAP from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("wt12318/MHCbinding")
+devtools::install_github("wt12318/TCAP")
 ```
 
 ## Example
@@ -23,7 +23,7 @@ devtools::install_github("wt12318/MHCbinding")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(MHCbinding)
+library(TCAP)
 ## basic example code
 ```
 

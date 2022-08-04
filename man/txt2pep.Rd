@@ -35,6 +35,6 @@ The command run is like: annotate_variation.pl -out out_dir -build hg19 anaovar_
 coding_change.pl common_driver.exonic_variant_function humandb/hg19_ensGene.txt humandb/hg19_ensGeneMrna.fa -includesnp -onlyAltering --outfile coding.txt
 }
 \examples{
-pep <- txt2pep(annovar_path = annovar_path,txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
+pep <- txt2pep(annovar_path = annovar_path,txt_path = system.file("extdata", "test_avinput.txt", package = "TCAP"),
                genome_version = "hg19",tmp_dir=tempdir(),num_thread=1)
 }

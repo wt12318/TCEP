@@ -40,7 +40,7 @@ Dataframe
 General MCHbinding
 }
 \examples{
-test <- MHCbinding:::general_mhcbinding(hla_type = "I", length = c(10),
+test <- TCAP:::general_mhcbinding(hla_type = "I", length = c(10),
                                       allele = c("HLA-A*01:01"),pre_method = "Seq2Neo-CNN",
                                       method_type="Immuno",
                                       peptide = c("NVDTHPGSGK","QTSEKALLRR"),

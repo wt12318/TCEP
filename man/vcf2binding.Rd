@@ -85,7 +85,7 @@ This function use \code{\link{vcf2seq}} to exacted mutated "new peptide" from VC
 }
 \examples{
 test <- vcf2binding(annovar_path = "~/software/annovar/annovar/",
-                   vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
+                   vcf_path = system.file("extdata", "test_grch38.vcf", package = "TCAP"),
                    hla_type = "I",pep_length = c(9,10),genome_version = "hg38",
                    need_allsamples = FALSE,need_samples = "TUMOR",
                    allele = c("HLA-A0101","HLA-A0102"),pre_method = "mhcflurry",tmp_dir=tempdir(),

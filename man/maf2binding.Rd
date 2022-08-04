@@ -82,7 +82,7 @@ This function use \code{\link{maf2seq}} to exacted mutated "new peptide" from MA
 }
 \examples{
 test <- maf2binding(annovar_path = "~/software/annovar/annovar/",need_allsamples=TRUE,
-                   maf_path = system.file("extdata", "test.maf", package = "MHCbinding"),
+                   maf_path = system.file("extdata", "test.maf", package = "TCAP"),
                    hla_type = "I",pep_length = c(9,10),
                    allele = c("HLA-A*0203"),pre_method = "DeepImmuno",tmp_dir=tempdir(),
                    num_thread=1,method_type = "Immuno",

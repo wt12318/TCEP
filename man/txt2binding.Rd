@@ -79,7 +79,7 @@ This function use \code{\link{txt2seq}} to exacted mutated "new peptide" from TX
 }
 \examples{
 test <- txt2binding(annovar_path = "~/software/annovar/annovar/",
-                    txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
+                    txt_path = system.file("extdata", "test_avinput.txt", package = "TCAP"),
                     genome_version = "hg19",hla_type = "I",pep_length = c(9),
                     allele = c("HLA-A*01:01"),pre_method = "netmhcpan_el",tmp_dir=tempdir(),
                     num_thread=1,method_type = "Binding",client_path="~/software/mhc_i/src/")

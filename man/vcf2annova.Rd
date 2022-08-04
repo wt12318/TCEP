@@ -32,7 +32,7 @@ The command run is like :convert2annovar.pl -format vcf4 example/ex2.vcf -outfil
 \examples{
 temp_file <- tempfile()
 file.create(temp_file)
-vcf2annova(annovar_path = annovar_path,vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
+vcf2annova(annovar_path = annovar_path,vcf_path = system.file("extdata", "test_grch38.vcf", package = "TCAP"),
            out_file = temp_file,need_allsamples = FALSE,
            need_samples = "TUMOR")
 

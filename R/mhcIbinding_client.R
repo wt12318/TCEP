@@ -84,13 +84,13 @@ netchop_processing <- function(pep,temp_dir,netchop_path){
 #'                        peptide=c("SLYNTVATLY","GHAHKVPR"),
 #'                        client_path = "~/software/mhc_i/src/")
 seq2neo_help <- function(pep_len, allele, peptide, tmp_dir, netchop_path, client_path){
-  tap_pre <- MHCbinding:::general_mhcbinding(hla_type = "I", length = pep_len,
+  tap_pre <- TCAP:::general_mhcbinding(hla_type = "I", length = pep_len,
                                         allele = gsub("[*]","",allele),pre_method = "NetCTLpan",
                                         method_type="Processing",
                                         peptide = peptide,
                                         tmp_dir=tmp_dir,netchop_path = netchop_path)
   tap_pre <- tap_pre %>% select(peptide,allele,tap_pre)
-  ic50 <- MHCbinding:::general_mhcbinding(hla_type = "I", length = pep_len,
+  ic50 <- TCAP:::general_mhcbinding(hla_type = "I", length = pep_len,
                                         allele = allele, pre_method = "netmhcpan_ba",
                                         method_type="Binding",
                                         peptide = peptide,
@@ -207,7 +207,7 @@ mhcbinding_client <- function(client_path,
 
         if (pre_method == "Seq2Neo-CNN"){
           pep_res <- split_pep(filter_pep,req_len = length[j])
-          tap_ic50 <- MHCbinding::seq2neo_help(pep_len=length[j],allele=allele[i],
+          tap_ic50 <- TCAP::seq2neo_help(pep_len=length[j],allele=allele[i],
                                                tmp_dir=temp_dir, netchop_path=netchop_path,
                                                peptide=filter_pep,
                                                client_path = client_path)
@@ -418,7 +418,7 @@ mhcIbinding_client <- function(client_path,
                       several.ok=T)
   pre_method <- match.arg(pre_method)
   method_type <- match.arg(method_type)
-  res <- MHCbinding::mhcbinding_client(client_path=client_path,peptide=peptide,
+  res <- TCAP::mhcbinding_client(client_path=client_path,peptide=peptide,
                                         allele=allele,length=length,pre_method=pre_method,tmp_dir=tmp_dir,
                                         hla_type = "I",
                                         method_type=method_type,mhcflurry_type=mhcflurry_type,
@@ -464,7 +464,7 @@ mhcIIbinding_client <- function(client_path,
                       several.ok=T)
   pre_method <- match.arg(pre_method)
   method_type <- match.arg(method_type)
-  res <- MHCbinding::mhcbinding_client(client_path=client_path,peptide=peptide,
+  res <- TCAP::mhcbinding_client(client_path=client_path,peptide=peptide,
                                         allele=allele,length=length,pre_method=pre_method,tmp_dir=tmp_dir,
                                         hla_type  = "II",method_type=method_type,
                                         mhcnuggets_env=mhcnuggets_env)

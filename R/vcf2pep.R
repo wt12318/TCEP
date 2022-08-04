@@ -14,7 +14,7 @@
 #' @examples
 #' temp_file <- tempfile()
 #' file.create(temp_file)
-#' vcf2annova(annovar_path = annovar_path,vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
+#' vcf2annova(annovar_path = annovar_path,vcf_path = system.file("extdata", "test_grch38.vcf", package = "TCAP"),
 #'            out_file = temp_file,need_allsamples = FALSE,
 #'            need_samples = "TUMOR")
 #'
@@ -52,7 +52,7 @@ vcf2annova <- function(annovar_path,vcf_path,out_file,
 #' @export
 #'
 #' @examples
-#' pep <- vcf2pep(annovar_path = annovar_path,vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
+#' pep <- vcf2pep(annovar_path = annovar_path,vcf_path = system.file("extdata", "test_grch38.vcf", package = "TCAP"),
 #'                genome_version = "hg38",need_allsamples = FALSE,
 #'                need_samples = "TUMOR",num_thread=1)
 vcf2pep <- function(annovar_path,vcf_path,
@@ -150,7 +150,7 @@ extractSeq <- function(seq,pos,len,indel=FALSE){
 #' @export
 #'
 #' @examples
-#' vcf2seq(annovar_path = annovar_path,vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
+#' vcf2seq(annovar_path = annovar_path,vcf_path = system.file("extdata", "test_grch38.vcf", package = "TCAP"),
 #'         genome_version = "hg38",
 #'         need_allsamples = FALSE,need_samples = "TUMOR",len = 9,num_thread=1)
 vcf2seq <- function(annovar_path,vcf_path,
@@ -165,9 +165,9 @@ vcf2seq <- function(annovar_path,vcf_path,
     dplyr::rowwise() %>%
     dplyr::mutate(indel=ifelse(ref != "-" & alt != "-" & nchar(ref) == nchar(alt),"FALSE","TRUE")) %>%
     as.data.frame()
-  ext_seqs_mt <- mapply(MHCbinding::extractSeq,seq=pep$seq_mt,pos=as.numeric(pep$pos),
+  ext_seqs_mt <- mapply(TCAP::extractSeq,seq=pep$seq_mt,pos=as.numeric(pep$pos),
                         len=as.numeric(len),indel=pep$indel) %>% unname()
-  ext_seqs_wt <- mapply(MHCbinding::extractSeq,seq=pep$seq_wt,pos=as.numeric(pep$pos),
+  ext_seqs_wt <- mapply(TCAP::extractSeq,seq=pep$seq_wt,pos=as.numeric(pep$pos),
                         len=as.numeric(len),indel=pep$indel) %>% unname()
   ##remove the last star
   a <-  substr(ext_seqs_mt,nchar(ext_seqs_mt),nchar(ext_seqs_mt))=="*"
@@ -211,7 +211,7 @@ vcf2seq <- function(annovar_path,vcf_path,
 #'
 #' @examples
 #'test <- vcf2binding(annovar_path = "~/software/annovar/annovar/",
-#'                    vcf_path = system.file("extdata", "test_grch38.vcf", package = "MHCbinding"),
+#'                    vcf_path = system.file("extdata", "test_grch38.vcf", package = "TCAP"),
 #'                    hla_type = "I",pep_length = c(9,10),genome_version = "hg38",
 #'                    need_allsamples = FALSE,need_samples = "TUMOR",
 #'                    allele = c("HLA-A0101","HLA-A0102"),pre_method = "mhcflurry",tmp_dir=tempdir(),
@@ -254,7 +254,7 @@ vcf2binding <- function(annovar_path,vcf_path,
     names(pre_res_mt) <- pep_length
     for (i in seq_along(pre_res_mt)){
       pep_mt <- res[res$predicted_length == names(pre_res_mt)[i],"ext_seqs_mt"]
-      pre_res_mt[[i]] <- MHCbinding:::general_mhcbinding(hla_type = hla_type, length = names(pre_res_mt)[i],
+      pre_res_mt[[i]] <- TCAP:::general_mhcbinding(hla_type = hla_type, length = names(pre_res_mt)[i],
                                                          allele = allele,pre_method = pre_method,method_type=method_type,
                                                          peptide = pep_mt$ext_seqs_mt,client_path = client_path,
                                                          tmp_dir=tmp_dir,mhcflurry_type="mt",
@@ -289,7 +289,7 @@ vcf2binding <- function(annovar_path,vcf_path,
     for (i in seq_along(pre_res_wt)){
       wt_pep_dt <- pre_res_mt %>%
         filter(length == names(pre_res_wt)[i])
-      pre_res_wt[[i]] <- MHCbinding:::general_mhcbinding(hla_type = hla_type, length = names(pre_res_wt)[i],
+      pre_res_wt[[i]] <- TCAP:::general_mhcbinding(hla_type = hla_type, length = names(pre_res_wt)[i],
                                                          allele = unique(wt_pep_dt$allele),
                                                          pre_method = pre_method,
                                                          peptide = unique(wt_pep_dt$peptide_wt),

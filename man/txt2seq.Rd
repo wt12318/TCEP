@@ -33,6 +33,6 @@ A dataframe containg wildtype and the mutated protein sequence, plus exacted seq
 This function use \code{\link{txt2pep}} to convert TXT file to mutated peptides, and use \code{\link{extractSeq}} to extract proper range of amino acids.
 }
 \examples{
-txt2seq(annovar_path = annovar_path,txt_path = system.file("extdata", "test_avinput.txt", package = "MHCbinding"),
+txt2seq(annovar_path = annovar_path,txt_path = system.file("extdata", "test_avinput.txt", package = "TCAP"),
         genome_version = "hg19",len = 9,tmp_dir=tempdir(),num_thread=1)
 }
