@@ -21,7 +21,7 @@
 #' @export
 #'
 #' @examples
-#' test <- batchpep_binding(pep_file=system.file("extdata", "random.pep", package = "TCAP"),
+#' test <- batchpep_binding(pep_file=system.file("extdata", "random.pep", package = "TCEP"),
 #'                          hla_type = "I",pep_length = c(9),allele = c("HLA-A*01:01"),
 #'                          pre_method = "netmhcpan_el",tmp_dir=tempdir(),
 #'                          num_thread=1,method_type = "Binding",client_path="~/software/mhc_i/src/")
@@ -47,7 +47,7 @@ batchpep_binding <- function(pep_file,hla_type,pep_length,allele,
   names(pre_res) <- pep_length
   for (i in seq_along(pre_res)){
     pep <- pep_dt[pep_dt$pre_len == names(pre_res)[i],"pep_seq"]
-    pre_res[[i]] <- TCAP:::general_mhcbinding(hla_type = hla_type,
+    pre_res[[i]] <- TCEP:::general_mhcbinding(hla_type = hla_type,
                                                     length = pep_length[i],
                                                     allele = allele,pre_method = pre_method,
                                                     method_type=method_type,

@@ -39,7 +39,7 @@ mhcIallele <- mhcIallele %>%
 usethis::use_data(mhcIallele,overwrite = T)
 
 mhcIallele <- mhcIallele
-load("~/TCAP/data-raw/mhcnuggest_alleles.Rdata")
+load("~/TCEP/data-raw/mhcnuggest_alleles.Rdata")
 mhcIallele <- bind_rows(
   mhcIallele,
   data.frame(alleles = mhcnuggest$V1,
@@ -226,7 +226,7 @@ names(res_cols) <- c("smmpmbec","smm","IEDB_recommended","pickpocket",
                      "netmhcstabpan","netmhcpan_el","netmhcpan_ba","netmhccons",
                      "comblib_sidney2008","ann","consensus")
 usethis::use_data(res_cols)
-load("~/TCAP/data/res_cols.rda")
+load("~/TCEP/data/res_cols.rda")
 res_cols["mhcflurry"][[1]] <- colnames(tmp)[3:7]
 res_cols["mhcnuggets"][[1]] <- "ic50"
 usethis::use_data(res_cols, overwrite = TRUE)
@@ -255,7 +255,7 @@ method <- available_methods("client","MHC-II")
 pre_method <- method[8]
 allele <- available_alleles("MHC-II",pre_method)[1,] %>% unlist()
 test <- txt2binding(get_method="client",annovar_path = "~/software/annovar/",
-                    txt_path = system.file("extdata", "test_avinput.txt", package = "TCAP"),
+                    txt_path = system.file("extdata", "test_avinput.txt", package = "TCEP"),
                     genome_version = "hg19",mhc_type = "MHC-II",pep_length = c(14),
                     allele = allele,pre_method = pre_method,
                     tmp_dir=tempdir(),num_thread=1,client_path = "~/software/mhc_ii/")
@@ -280,13 +280,13 @@ usethis::use_data(res_cols_ii,overwrite = TRUE)
 res_cols_ii <- res_cols_ii
 res_cols_ii["mhcnuggets"][[1]] <- "ic50"
 ###netChop alleles
-netChop_alleles <- readRDS("~/TCAP/data-raw/netChop_alleles.rds")
+netChop_alleles <- readRDS("~/TCEP/data-raw/netChop_alleles.rds")
 colnames(netChop_alleles) <- "Allele"
 NetCTLpan_alleles <- netChop_alleles
 usethis::use_data(NetCTLpan_alleles)
 
 ###immuno alleles
-iedb_imm_alleles <- readRDS("~/TCAP/data-raw/iedb_imm_alleles.rds")
+iedb_imm_alleles <- readRDS("~/TCEP/data-raw/iedb_imm_alleles.rds")
 prime_alleles <- read.table("data-raw/PRIME_alleles.txt")
 deepimmuno <- read.table("data-raw/hla2paratopeTable_aligned.txt",header = T)
 seq2neo_alleles <- mhcIallele[mhcIallele$method=="netmhcpan_el","alleles"] %>%

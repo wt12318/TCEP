@@ -1,21 +1,21 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# TCAP
+# TCEP
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of TCAP is to …
+The goal of TCEP is to …
 
 ## Installation
 
-You can install the development version of TCAP from
+You can install the development version of TCEP from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("wt12318/TCAP")
+devtools::install_github("wt12318/TCEP")
 ```
 
 ## Example
@@ -23,7 +23,7 @@ devtools::install_github("wt12318/TCAP")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(TCAP)
+library(TCEP)
 ## basic example code
 ```
 

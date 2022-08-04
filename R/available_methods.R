@@ -11,7 +11,7 @@ available_methods <- function(pre_type=c("Binding","Processing","Immuno")){
 
   pre_type <- match.arg(pre_type)
   if (pre_type == "Binding"){
-    dt_mhci <- TCAP::mhcIbinding_api_methods
+    dt_mhci <- TCEP::mhcIbinding_api_methods
     dt_mhci$method[9] <- "IEDB_recommended"
     cat(crayon::green("HLA-I antigen binding methods: ","\n"))
     print(dplyr::as_tibble(bind_rows(
